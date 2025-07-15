@@ -1,7 +1,7 @@
 {
   "version": "6",
   "dialect": "sqlite",
-  "id": "6ac825b0-d946-4b87-88df-6270178e3bf1",
+  "id": "2ce74542-3608-4477-92a7-7138de5d147a",
   "prevId": "00000000-0000-0000-0000-000000000000",
   "tables": {
     "course": {
@@ -54,13 +54,21 @@
           "notNull": true,
           "autoincrement": true
         },
-        "gameDate": {
-          "name": "gameDate",
+        "playedOn": {
+          "name": "playedOn",
           "type": "text",
           "primaryKey": false,
           "notNull": true,
           "autoincrement": false,
-          "default": "'CURRENT_TIMESTAMP'"
+          "default": "(current_timestamp)"
+        },
+        "completed": {
+          "name": "completed",
+          "type": "integer",
+          "primaryKey": false,
+          "notNull": true,
+          "autoincrement": false,
+          "default": false
         },
         "courseId": {
           "name": "courseId",
@@ -90,8 +98,8 @@
       "uniqueConstraints": {},
       "checkConstraints": {}
     },
-    "hole": {
-      "name": "hole",
+    "game_hole": {
+      "name": "game_hole",
       "columns": {
         "id": {
           "name": "id",
@@ -105,7 +113,54 @@
           "type": "integer",
           "primaryKey": false,
           "notNull": true,
+          "autoincrement": false,
+          "default": 1
+        },
+        "completed": {
+          "name": "completed",
+          "type": "integer",
+          "primaryKey": false,
+          "notNull": true,
+          "autoincrement": false,
+          "default": false
+        },
+        "gameId": {
+          "name": "gameId",
+          "type": "integer",
+          "primaryKey": false,
+          "notNull": true,
           "autoincrement": false
+        }
+      },
+      "indexes": {},
+      "foreignKeys": {
+        "game_hole_gameId_game_id_fk": {
+          "name": "game_hole_gameId_game_id_fk",
+          "tableFrom": "game_hole",
+          "tableTo": "game",
+          "columnsFrom": [
+            "gameId"
+          ],
+          "columnsTo": [
+            "id"
+          ],
+          "onDelete": "cascade",
+          "onUpdate": "no action"
+        }
+      },
+      "compositePrimaryKeys": {},
+      "uniqueConstraints": {},
+      "checkConstraints": {}
+    },
+    "game_hole_player": {
+      "name": "game_hole_player",
+      "columns": {
+        "id": {
+          "name": "id",
+          "type": "integer",
+          "primaryKey": true,
+          "notNull": true,
+          "autoincrement": true
         },
         "stroke": {
           "name": "stroke",
@@ -115,23 +170,15 @@
           "autoincrement": false,
           "default": 0
         },
-        "completed": {
-          "name": "completed",
-          "type": "integer",
-          "primaryKey": false,
-          "notNull": true,
-          "autoincrement": false,
-          "default": 0
-        },
-        "gameId": {
-          "name": "gameId",
+        "playerId": {
+          "name": "playerId",
           "type": "integer",
           "primaryKey": false,
           "notNull": true,
           "autoincrement": false
         },
-        "playerId": {
-          "name": "playerId",
+        "gameHoleId": {
+          "name": "gameHoleId",
           "type": "integer",
           "primaryKey": false,
           "notNull": true,
@@ -140,22 +187,9 @@
       },
       "indexes": {},
       "foreignKeys": {
-        "hole_gameId_game_id_fk": {
-          "name": "hole_gameId_game_id_fk",
-          "tableFrom": "hole",
-          "tableTo": "game",
-          "columnsFrom": [
-            "gameId"
-          ],
-          "columnsTo": [
-            "id"
-          ],
-          "onDelete": "no action",
-          "onUpdate": "no action"
-        },
-        "hole_playerId_player_id_fk": {
-          "name": "hole_playerId_player_id_fk",
-          "tableFrom": "hole",
+        "game_hole_player_playerId_player_id_fk": {
+          "name": "game_hole_player_playerId_player_id_fk",
+          "tableFrom": "game_hole_player",
           "tableTo": "player",
           "columnsFrom": [
             "playerId"
@@ -163,7 +197,20 @@
           "columnsTo": [
             "id"
           ],
-          "onDelete": "no action",
+          "onDelete": "cascade",
+          "onUpdate": "no action"
+        },
+        "game_hole_player_gameHoleId_game_hole_id_fk": {
+          "name": "game_hole_player_gameHoleId_game_hole_id_fk",
+          "tableFrom": "game_hole_player",
+          "tableTo": "game_hole",
+          "columnsFrom": [
+            "gameHoleId"
+          ],
+          "columnsTo": [
+            "id"
+          ],
+          "onDelete": "cascade",
           "onUpdate": "no action"
         }
       },

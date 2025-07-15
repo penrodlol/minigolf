@@ -1,38 +1,48 @@
-import { integer, sqliteTable, text } from 'drizzle-orm/sqlite-core';
+import { sql } from 'drizzle-orm';
+import { integer, SQLiteColumnBuilder, sqliteTable, text } from 'drizzle-orm/sqlite-core';
 
 export type Player = typeof player.$inferSelect;
 export type Course = typeof course.$inferSelect;
 export type Game = typeof game.$inferSelect;
-export type Hole = typeof hole.$inferSelect;
+export type GameHole = typeof gameHole.$inferSelect;
+export type GameHolePlayer = typeof gameHolePlayer.$inferSelect;
+
+const primaryKey = integer().primaryKey({ autoIncrement: true });
+const foreignKey = (...props: Parameters<SQLiteColumnBuilder['references']>) =>
+  integer()
+    .notNull()
+    .references(...props);
 
 export const player = sqliteTable('player', {
-  id: integer().primaryKey({ autoIncrement: true }),
+  id: primaryKey,
   name: text().notNull().unique(),
 });
 
 export const course = sqliteTable('course', {
-  id: integer().primaryKey({ autoIncrement: true }),
+  id: primaryKey,
   name: text().notNull().unique(),
   holes: integer().notNull().default(18),
 });
 
 export const game = sqliteTable('game', {
-  id: integer().primaryKey({ autoIncrement: true }),
-  gameDate: text().notNull().default('CURRENT_TIMESTAMP'),
-  courseId: integer()
+  id: primaryKey,
+  playedOn: text()
     .notNull()
-    .references(() => course.id),
+    .default(sql`(current_timestamp)`),
+  completed: integer({ mode: 'boolean' }).notNull().default(false),
+  courseId: foreignKey(() => course.id),
 });
 
-export const hole = sqliteTable('hole', {
-  id: integer().primaryKey({ autoIncrement: true }),
-  hole: integer().notNull(),
+export const gameHole = sqliteTable('game_hole', {
+  id: primaryKey,
+  hole: integer().notNull().default(1),
+  completed: integer({ mode: 'boolean' }).notNull().default(false),
+  gameId: foreignKey(() => game.id, { onDelete: 'cascade' }),
+});
+
+export const gameHolePlayer = sqliteTable('game_hole_player', {
+  id: primaryKey,
   stroke: integer().notNull().default(0),
-  completed: integer().notNull().default(0),
-  gameId: integer()
-    .notNull()
-    .references(() => game.id),
-  playerId: integer()
-    .notNull()
-    .references(() => player.id),
+  playerId: foreignKey(() => player.id, { onDelete: 'cascade' }),
+  gameHoleId: foreignKey(() => gameHole.id, { onDelete: 'cascade' }),
 });

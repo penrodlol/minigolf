@@ -4,8 +4,9 @@ import { LandPlot, PlayIcon, Users } from 'lucide-react-native';
 export default function TabsLayout() {
   return (
     <Tabs screenOptions={{ tabBarActiveTintColor: 'indigo' }}>
+      <Tabs.Screen redirect name="index" />
       <Tabs.Screen
-        name="index"
+        name="(game)"
         options={{ title: 'Game', tabBarIcon: ({ color }) => <PlayIcon size={20} color={color} fill={color} /> }}
       />
       <Tabs.Screen

@@ -1,12 +1,21 @@
-import { Course, course, db, player, Player } from '@/db';
+import { Course, course, db, game, gameHole, gameHolePlayer, player, Player } from '@/db';
 import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query';
 import { eq } from 'drizzle-orm';
 
 declare module '@tanstack/react-query' {
   interface Register {
-    queryKey: ['players' | 'courses', ...ReadonlyArray<unknown>];
+    queryKey: ['players' | 'courses' | 'games' | 'game' | 'holes', ...ReadonlyArray<unknown>];
     mutationKey: [
-      'addPlayer' | 'updatePlayer' | 'deletePlayer' | 'addCourse' | 'updateCourse' | 'deleteCourse',
+      (
+        | 'addPlayer'
+        | 'updatePlayer'
+        | 'deletePlayer'
+        | 'addCourse'
+        | 'updateCourse'
+        | 'deleteCourse'
+        | 'addGame'
+        | 'deleteGame'
+      ),
       ...ReadonlyArray<unknown>,
     ];
   }
@@ -19,6 +28,7 @@ export function useStore() {
     client,
     players: useQuery({ queryKey: ['players'], queryFn: () => db.query.player.findMany() }),
     courses: useQuery({ queryKey: ['courses'], queryFn: () => db.query.course.findMany() }),
+    games: useQuery({ queryKey: ['games'], queryFn: () => db.query.game.findMany() }),
     addPlayer: useMutation({
       mutationKey: ['addPlayer'],
       mutationFn: async (name: Player['name']) => db.insert(player).values({ name }),
@@ -48,6 +58,24 @@ export function useStore() {
       mutationKey: ['deleteCourse'],
       mutationFn: async (id: Course['id']) => db.delete(course).where(eq(course.id, id)),
       onSuccess: () => client.invalidateQueries({ queryKey: ['courses'] }),
+    }),
+    addGame: useMutation({
+      mutationKey: ['addGame'],
+      mutationFn: async (gameData: { course: Course; players: Array<Player['id']> }) => {
+        await db.transaction(async (transaction) => {
+          const newGame = transaction.insert(game).values({ courseId: gameData.course.id }).returning().get();
+          const newGameHoleId = transaction.insert(gameHole).values({ gameId: newGame.id }).returning().get();
+          await transaction
+            .insert(gameHolePlayer)
+            .values(gameData.players.map((playerId) => ({ playerId, gameHoleId: newGameHoleId.id })));
+        });
+      },
+      onSuccess: () => client.invalidateQueries({ queryKey: ['games'] }),
+    }),
+    deleteGame: useMutation({
+      mutationKey: ['deleteGame'],
+      mutationFn: async (id: number) => db.delete(game).where(eq(game.id, id)),
+      onSuccess: () => client.invalidateQueries({ queryKey: ['games'] }),
     }),
   };
 }
