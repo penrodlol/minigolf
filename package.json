@@ -39,6 +39,7 @@
     "@types/react": "~19.1.8",
     "babel-plugin-inline-import": "^3.0.0",
     "drizzle-kit": "^0.31.4",
+    "expo-drizzle-studio-plugin": "^0.2.0",
     "prettier": "^3.6.2",
     "typescript": "~5.8.3"
   },

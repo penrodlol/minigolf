@@ -1,4 +1,4 @@
-import { sql } from 'drizzle-orm';
+import { relations, sql } from 'drizzle-orm';
 import { integer, SQLiteColumnBuilder, sqliteTable, text } from 'drizzle-orm/sqlite-core';
 
 export type Player = typeof player.$inferSelect;
@@ -46,3 +46,12 @@ export const gameHolePlayer = sqliteTable('game_hole_player', {
   playerId: foreignKey(() => player.id, { onDelete: 'cascade' }),
   gameHoleId: foreignKey(() => gameHole.id, { onDelete: 'cascade' }),
 });
+
+export const gameHoleRelations = relations(gameHole, ({ many }) => ({
+  gameHolePlayer: many(gameHolePlayer),
+}));
+
+export const gameHolePlayerRelations = relations(gameHolePlayer, ({ one }) => ({
+  player: one(player, { fields: [gameHolePlayer.playerId], references: [player.id] }),
+  gameHole: one(gameHole, { fields: [gameHolePlayer.gameHoleId], references: [gameHole.id] }),
+}));

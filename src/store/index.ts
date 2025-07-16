@@ -4,7 +4,7 @@ import { eq } from 'drizzle-orm';
 
 declare module '@tanstack/react-query' {
   interface Register {
-    queryKey: ['players' | 'courses' | 'games' | 'game' | 'holes', ...ReadonlyArray<unknown>];
+    queryKey: ['players' | 'courses' | 'games' | 'game' | 'holes' | 'hole', ...ReadonlyArray<unknown>];
     mutationKey: [
       (
         | 'addPlayer'
@@ -15,6 +15,8 @@ declare module '@tanstack/react-query' {
         | 'deleteCourse'
         | 'addGame'
         | 'deleteGame'
+        | 'nextHole'
+        | 'endGame'
       ),
       ...ReadonlyArray<unknown>,
     ];
