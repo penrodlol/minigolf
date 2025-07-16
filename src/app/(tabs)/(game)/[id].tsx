@@ -9,6 +9,7 @@ import { z } from 'zod/v4';
 export default function GameHoleScreen() {
   const params = useLocalSearchParams();
   const id = useMemo(() => z.coerce.number().parse(params.id), [params.id]);
+  const [winner, setWinner] = useState<Player | null>(null);
   const [strokes, setStrokes] = useState<
     Array<{ id: GameHolePlayer['id']; playerId: Player['id']; stroke: GameHolePlayer['stroke'] }>
   >([]);
@@ -32,12 +33,15 @@ export default function GameHoleScreen() {
 
   const hole = useQuery({
     queryKey: ['hole', id],
-    queryFn: async () =>
-      db.query.gameHole.findFirst({
+    queryFn: async () => {
+      if (gameAndCourse.data?.game.completed) return null;
+
+      return db.query.gameHole.findFirst({
         where: and(eq(gameHole.gameId, id), eq(gameHole.completed, false)),
         with: { gameHolePlayer: { with: { player: true } } },
         orderBy: gameHole.hole,
-      }),
+      });
+    },
   });
 
   const nextHole = useMutation({
@@ -69,6 +73,30 @@ export default function GameHoleScreen() {
     },
     onError: (error) => {
       console.error('Error updating hole:', error);
+    },
+  });
+
+  const endGame = useMutation({
+    mutationKey: ['endGame'],
+    mutationFn: async () => {
+      await db.transaction(async (transaction) => {
+        if (!hole.data) return;
+
+        await transaction.update(game).set({ completed: true }).where(eq(game.id, id));
+        await transaction.update(gameHole).set({ completed: true }).where(eq(gameHole.id, hole.data.id));
+
+        for (const { id: gameHolePlayerId, stroke, playerId } of strokes) {
+          await transaction.update(gameHolePlayer).set({ stroke }).where(eq(gameHolePlayer.id, gameHolePlayerId));
+        }
+      });
+    },
+    onSuccess: () => {
+      client.invalidateQueries({ queryKey: ['holes'] });
+      client.invalidateQueries({ queryKey: ['hole'] });
+      client.invalidateQueries({ queryKey: ['game'] });
+    },
+    onError: (error) => {
+      console.error('Error ending game:', error);
     },
   });
 
@@ -120,7 +148,11 @@ export default function GameHoleScreen() {
         />
       </View>
       <View style={{ marginTop: 40 }}>
-        <Button title="Next Hole" onPress={() => nextHole.mutateAsync()} />
+        {hole.data?.hole === gameAndCourse.data?.course?.holes ? (
+          <Button title="End Game" onPress={() => endGame.mutateAsync()} />
+        ) : (
+          <Button title="Next Hole" onPress={() => nextHole.mutateAsync()} />
+        )}
       </View>
       <View style={{ display: 'flex', flexDirection: 'column', gap: 10, marginTop: 20 }}>
         <Text>Scorecard:</Text>
@@ -140,6 +172,7 @@ export default function GameHoleScreen() {
           )}
         />
       </View>
+      <View>{winner && <Text>Winner: {winner.name}!</Text>}</View>
     </View>
   );
 }
