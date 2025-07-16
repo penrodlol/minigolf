@@ -149,7 +149,7 @@ export default function GameHoleScreen() {
       </View>
       <View style={{ marginTop: 40 }}>
         {hole.data?.hole === gameAndCourse.data?.course?.holes ? (
-          <Button title="End Game" onPress={() => endGame.mutateAsync()} />
+          <Button title="End Game" disabled={!!winner} onPress={() => endGame.mutateAsync()} />
         ) : (
           <Button title="Next Hole" onPress={() => nextHole.mutateAsync()} />
         )}
