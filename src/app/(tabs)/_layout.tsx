@@ -1,21 +1,23 @@
+import { useColorScheme } from '@/lib/color';
 import { Tabs } from 'expo-router';
-import { LandPlot, PlayIcon, Users } from 'lucide-react-native';
+import { LandPlotIcon, TargetIcon, UsersIcon } from 'lucide-react-native';
 
 export default function TabsLayout() {
+  const { colors } = useColorScheme();
+
   return (
-    <Tabs screenOptions={{ tabBarActiveTintColor: 'indigo' }}>
-      <Tabs.Screen redirect name="index" />
+    <Tabs screenOptions={{ title: 'Mini Golf Scoresheet', tabBarActiveTintColor: colors.primary }}>
       <Tabs.Screen
-        name="(game)"
-        options={{ title: 'Game', tabBarIcon: ({ color }) => <PlayIcon size={20} color={color} fill={color} /> }}
+        name="index"
+        options={{ tabBarLabel: 'Games', tabBarIcon: ({ color }) => <TargetIcon color={color} /> }}
       />
       <Tabs.Screen
         name="courses"
-        options={{ title: 'Courses', tabBarIcon: ({ color }) => <LandPlot size={20} color={color} /> }}
+        options={{ tabBarLabel: 'Courses', tabBarIcon: ({ color }) => <LandPlotIcon color={color} /> }}
       />
       <Tabs.Screen
         name="players"
-        options={{ title: 'Players', tabBarIcon: ({ color }) => <Users size={20} color={color} /> }}
+        options={{ tabBarLabel: 'Players', tabBarIcon: ({ color }) => <UsersIcon color={color} /> }}
       />
     </Tabs>
   );
