@@ -16,6 +16,7 @@ const foreignKey = (...props: Parameters<SQLiteColumnBuilder['references']>) =>
 export const player = sqliteTable('player', {
   id: primaryKey,
   name: text().notNull().unique(),
+  wins: integer().notNull().default(0),
 });
 
 export const course = sqliteTable('course', {

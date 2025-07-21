@@ -1,33 +1,91 @@
-import Skeleton from '@/components/skeleton';
-import { usePlayers } from '@/lib/api';
+import Avatar from '@/components/avatar';
+import * as Modal from '@/components/modal';
+import { Player } from '@/db';
+import { useDeletePlayer, usePlayers, useSavePlayer } from '@/lib/api';
 import { useAppTheme } from '@/lib/theme';
+import { useMemo, useState } from 'react';
 import { FlatList, View } from 'react-native';
-import { Card, FAB } from 'react-native-paper';
+import { Button, Card, FAB, IconButton, Surface, Text, TextInput } from 'react-native-paper';
 
 export default function PlayersPage() {
   const theme = useAppTheme();
   const players = usePlayers();
+  const savePlayer = useSavePlayer();
+  const deletePlayer = useDeletePlayer();
+  const topPlayers = useMemo(() => players.data?.sort((a, b) => b.wins - a.wins).slice(0, 3), [players.data]);
+  const [editing, setEditing] = useState(false);
+  const [player, setPlayer] = useState<Partial<Player>>();
 
   return (
-    <View style={{ flex: 1, padding: 24 }}>
-      {players.isLoading && (
-        <View style={{ flex: 1, display: 'flex', justifyContent: 'center', alignItems: 'center', gap: 10 }}>
-          {[...Array(8)].map((_, index) => (
-            <Skeleton key={index} width="100%" height={50} />
-          ))}
+    <View style={{ flex: 1, flexDirection: 'column', gap: 40 }}>
+      <Surface elevation={2} style={{ padding: 30, borderBottomEndRadius: 20, borderBottomStartRadius: 20 }}>
+        <View style={{ flexDirection: 'row', alignItems: 'flex-end', justifyContent: 'space-between' }}>
+          {[topPlayers?.[1], topPlayers?.[0], topPlayers?.[2]]
+            .filter((player) => !!player)
+            .map((player, index) => (
+              <View key={player.id} style={{ flexDirection: 'column', alignItems: 'center' }}>
+                <Avatar size={index === 1 ? 100 : 80} label={player.name[0]} style={{ marginBottom: 8 }} />
+                <Text variant="titleMedium">{player.name}</Text>
+                <Text style={{ color: theme.colors.onSurfaceVariant }}>{player.wins} Wins</Text>
+              </View>
+            ))}
         </View>
-      )}
-      <FlatList
-        data={players.data}
-        keyExtractor={(player) => String(player.id)}
-        contentContainerStyle={{ display: 'flex', flexDirection: 'column', gap: 10 }}
-        renderItem={({ item: player }) => (
-          <Card>
-            <Card.Title title={player.name} />
-          </Card>
-        )}
+      </Surface>
+      <View style={{ flex: 1 }}>
+        <FlatList
+          contentContainerStyle={{ gap: 16, paddingHorizontal: 32, paddingBottom: 24 }}
+          data={players.data}
+          keyExtractor={(player) => String(player.id)}
+          renderItem={({ item: player }) => (
+            <Card mode="contained">
+              <Card.Title
+                title={player.name}
+                subtitle={`Player Wins: ${player.wins}`}
+                subtitleStyle={{ color: theme.colors.onSurfaceVariant, lineHeight: 12 }}
+                left={(props) => <Avatar {...props} size={40} label={player.name[0]} />}
+                right={(props) => (
+                  <View style={{ flexDirection: 'row' }}>
+                    <IconButton {...props} icon="pencil" onPress={() => (setEditing(true), setPlayer(player))} />
+                    <IconButton {...props} icon="delete" onPress={() => deletePlayer.mutateAsync(player.id)} />
+                  </View>
+                )}
+              />
+            </Card>
+          )}
+        />
+      </View>
+      <FAB
+        icon="plus"
+        mode="elevated"
+        style={{ position: 'absolute', bottom: 16, right: 16 }}
+        onPress={() => setEditing(true)}
       />
-      <FAB icon="plus" style={{ position: 'absolute', bottom: 0, right: 15 }} />
+      <Modal.Root visible={editing} onDismiss={() => (setEditing(false), setPlayer(undefined))}>
+        <Modal.Header title={player ? 'Edit Player' : 'Add Player'} />
+        <Modal.Body>
+          <TextInput
+            label="Player Name"
+            value={player?.name}
+            right={<TextInput.Icon icon="account-edit" />}
+            onChangeText={(text) => setPlayer((prev) => ({ ...prev, name: text.trim() }))}
+          />
+        </Modal.Body>
+        <Modal.Footer>
+          <Button onPress={() => (setEditing(false), setPlayer(undefined))}>Cancel</Button>
+          <Button
+            mode="contained-tonal"
+            disabled={!player?.name}
+            onPress={async () => {
+              if (!player?.name) return;
+              await savePlayer.mutateAsync({ name: player.name, id: player.id });
+              setEditing(false);
+              setPlayer(undefined);
+            }}
+          >
+            Save
+          </Button>
+        </Modal.Footer>
+      </Modal.Root>
     </View>
   );
 }
