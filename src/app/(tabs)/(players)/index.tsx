@@ -64,6 +64,7 @@ export default function PlayersPage() {
         <Modal.Header title={player ? 'Edit Player' : 'Add Player'} />
         <Modal.Body>
           <TextInput
+            autoFocus
             label="Player Name"
             value={player?.name}
             right={<TextInput.Icon icon="account-edit" />}
