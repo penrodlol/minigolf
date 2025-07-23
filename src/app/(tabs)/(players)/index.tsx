@@ -15,6 +15,7 @@ export default function PlayersPage() {
   const topPlayers = useMemo(() => players.data?.sort((a, b) => b.wins - a.wins).slice(0, 3), [players.data]);
   const [editing, setEditing] = useState(false);
   const [player, setPlayer] = useState<Partial<Player>>();
+  const [playerToDelete, setPlayerToDelete] = useState<Player>();
 
   return (
     <View style={{ flex: 1, flexDirection: 'column', gap: 40 }}>
@@ -46,7 +47,7 @@ export default function PlayersPage() {
                 right={(props) => (
                   <View style={{ flexDirection: 'row' }}>
                     <IconButton {...props} icon="pencil" onPress={() => (setEditing(true), setPlayer(player))} />
-                    <IconButton {...props} icon="delete" onPress={() => deletePlayer.mutateAsync(player.id)} />
+                    <IconButton {...props} icon="delete" onPress={() => setPlayerToDelete(player)} />
                   </View>
                 )}
               />
@@ -84,6 +85,25 @@ export default function PlayersPage() {
             }}
           >
             Save
+          </Button>
+        </Modal.Footer>
+      </Modal.Root>
+      <Modal.Root visible={!!playerToDelete} onDismiss={() => setPlayerToDelete(undefined)}>
+        <Modal.Header title="Delete Player" />
+        <Modal.Body>
+          <Text>Are you sure you want to delete this player?</Text>
+        </Modal.Body>
+        <Modal.Footer>
+          <Button onPress={() => setPlayerToDelete(undefined)}>Cancel</Button>
+          <Button
+            mode="contained-tonal"
+            onPress={async () => {
+              if (!playerToDelete) return;
+              await deletePlayer.mutateAsync(playerToDelete.id);
+              setPlayerToDelete(undefined);
+            }}
+          >
+            Delete
           </Button>
         </Modal.Footer>
       </Modal.Root>
