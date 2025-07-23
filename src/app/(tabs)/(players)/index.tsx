@@ -1,7 +1,7 @@
 import Avatar from '@/components/avatar';
 import * as Modal from '@/components/modal';
 import { Player } from '@/db';
-import { useDeletePlayer, usePlayers, useSavePlayer } from '@/lib/api';
+import { usePlayerStore } from '@/lib/store';
 import { useAppTheme } from '@/lib/theme';
 import { useMemo, useState } from 'react';
 import { FlatList, View } from 'react-native';
@@ -9,10 +9,8 @@ import { Button, Card, FAB, IconButton, Surface, Text, TextInput } from 'react-n
 
 export default function PlayersPage() {
   const theme = useAppTheme();
-  const players = usePlayers();
-  const savePlayer = useSavePlayer();
-  const deletePlayer = useDeletePlayer();
-  const topPlayers = useMemo(() => players.data?.sort((a, b) => b.wins - a.wins).slice(0, 3), [players.data]);
+  const store = usePlayerStore();
+  const playersByWin = useMemo(() => store.players.data?.sort((a, b) => b.wins - a.wins), [store.players.data]);
   const [editing, setEditing] = useState(false);
   const [player, setPlayer] = useState<Partial<Player>>();
   const [playerToDelete, setPlayerToDelete] = useState<Player>();
@@ -21,7 +19,7 @@ export default function PlayersPage() {
     <View style={{ flex: 1, flexDirection: 'column', gap: 40 }}>
       <Surface elevation={2} style={{ padding: 30, borderBottomEndRadius: 20, borderBottomStartRadius: 20 }}>
         <View style={{ flexDirection: 'row', alignItems: 'flex-end', justifyContent: 'space-between' }}>
-          {[topPlayers?.[1], topPlayers?.[0], topPlayers?.[2]]
+          {[playersByWin?.[1], playersByWin?.[0], playersByWin?.[2]]
             .filter((player) => !!player)
             .map((player, index) => (
               <View key={player.id} style={{ flexDirection: 'column', alignItems: 'center' }}>
@@ -35,7 +33,7 @@ export default function PlayersPage() {
       <View style={{ flex: 1 }}>
         <FlatList
           contentContainerStyle={{ gap: 16, paddingHorizontal: 32, paddingBottom: 24 }}
-          data={players.data}
+          data={store.players.data}
           keyExtractor={(player) => String(player.id)}
           renderItem={({ item: player }) => (
             <Card mode="contained">
@@ -79,7 +77,7 @@ export default function PlayersPage() {
             disabled={!player?.name}
             onPress={async () => {
               if (!player?.name) return;
-              await savePlayer.mutateAsync({ name: player.name, id: player.id });
+              await store.savePlayer.mutateAsync({ name: player.name, id: player.id });
               setEditing(false);
               setPlayer(undefined);
             }}
@@ -99,7 +97,7 @@ export default function PlayersPage() {
             mode="contained-tonal"
             onPress={async () => {
               if (!playerToDelete) return;
-              await deletePlayer.mutateAsync(playerToDelete.id);
+              await store.deletePlayer.mutateAsync(playerToDelete.id);
               setPlayerToDelete(undefined);
             }}
           >
