@@ -23,7 +23,22 @@ export const course = sqliteTable('course', {
   id: primaryKey,
   name: text().notNull().unique(),
   holes: integer().notNull().default(18),
+  location: text().notNull(),
+  courseCompanyId: foreignKey(() => courseCompany.id),
 });
+
+export const courseCompany = sqliteTable('course_company', {
+  id: primaryKey,
+  name: text().notNull().unique(),
+});
+
+export const courseRelations = relations(course, ({ one }) => ({
+  courseCompany: one(courseCompany, { fields: [course.courseCompanyId], references: [courseCompany.id] }),
+}));
+
+export const courseCompanyRelations = relations(courseCompany, ({ many }) => ({
+  courses: many(course),
+}));
 
 export const game = sqliteTable('game', {
   id: primaryKey,
