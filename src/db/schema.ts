@@ -2,6 +2,7 @@ import { relations, sql } from 'drizzle-orm';
 import { integer, SQLiteColumnBuilder, sqliteTable, text } from 'drizzle-orm/sqlite-core';
 
 export type Player = typeof player.$inferSelect;
+export type CourseCompany = typeof courseCompany.$inferSelect;
 export type Course = typeof course.$inferSelect;
 export type Game = typeof game.$inferSelect;
 export type GameHole = typeof gameHole.$inferSelect;
@@ -19,6 +20,11 @@ export const player = sqliteTable('player', {
   wins: integer().notNull().default(0),
 });
 
+export const courseCompany = sqliteTable('course_company', {
+  id: primaryKey,
+  name: text().notNull().unique(),
+});
+
 export const course = sqliteTable('course', {
   id: primaryKey,
   name: text().notNull().unique(),
@@ -27,17 +33,12 @@ export const course = sqliteTable('course', {
   courseCompanyId: foreignKey(() => courseCompany.id),
 });
 
-export const courseCompany = sqliteTable('course_company', {
-  id: primaryKey,
-  name: text().notNull().unique(),
-});
+export const courseCompanyRelations = relations(courseCompany, ({ many }) => ({
+  courses: many(course),
+}));
 
 export const courseRelations = relations(course, ({ one }) => ({
   courseCompany: one(courseCompany, { fields: [course.courseCompanyId], references: [courseCompany.id] }),
-}));
-
-export const courseCompanyRelations = relations(courseCompany, ({ many }) => ({
-  courses: many(course),
 }));
 
 export const game = sqliteTable('game', {

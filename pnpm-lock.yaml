@@ -53,6 +53,12 @@ importers:
       react-native:
         specifier: 0.79.5
         version: 0.79.5(@babel/core@7.28.0)(@types/react@19.0.14)(react@19.0.0)
+      react-native-paper:
+        specifier: ^5.14.5
+        version: 5.14.5(react-native-safe-area-context@5.4.0(react-native@0.79.5(@babel/core@7.28.0)(@types/react@19.0.14)(react@19.0.0))(react@19.0.0))(react-native@0.79.5(@babel/core@7.28.0)(@types/react@19.0.14)(react@19.0.0))(react@19.0.0)
+      react-native-paper-dropdown:
+        specifier: ^2.3.1
+        version: 2.3.1(react-native-paper@5.14.5(react-native-safe-area-context@5.4.0(react-native@0.79.5(@babel/core@7.28.0)(@types/react@19.0.14)(react@19.0.0))(react@19.0.0))(react-native@0.79.5(@babel/core@7.28.0)(@types/react@19.0.14)(react@19.0.0))(react@19.0.0))(react-native@0.79.5(@babel/core@7.28.0)(@types/react@19.0.14)(react@19.0.0))(react@19.0.0)
       react-native-reanimated:
         specifier: ~3.17.4
         version: 3.17.5(@babel/core@7.28.0)(react-native@0.79.5(@babel/core@7.28.0)(@types/react@19.0.14)(react@19.0.0))(react@19.0.0)
@@ -81,9 +87,6 @@ importers:
       prettier:
         specifier: ^3.6.2
         version: 3.6.2
-      react-native-paper:
-        specifier: ^5.14.5
-        version: 5.14.5(react-native-safe-area-context@5.4.0(react-native@0.79.5(@babel/core@7.28.0)(@types/react@19.0.14)(react@19.0.0))(react@19.0.0))(react-native@0.79.5(@babel/core@7.28.0)(@types/react@19.0.14)(react@19.0.0))(react@19.0.0)
       typescript:
         specifier: ~5.8.3
         version: 5.8.3
@@ -2723,6 +2726,13 @@ packages:
     peerDependencies:
       react: '*'
       react-native: '*'
+
+  react-native-paper-dropdown@2.3.1:
+    resolution: {integrity: sha512-IvcHTucAV5+fiX2IVMiVdBDKT6KHxycW0o9QzZe7bpmeZWmuCajHDnwG3OSBGlXhUxrrM3TC0/HJZHwORWGgQg==}
+    peerDependencies:
+      react: '*'
+      react-native: '*'
+      react-native-paper: '*'
 
   react-native-paper@5.14.5:
     resolution: {integrity: sha512-eaIH5bUQjJ/mYm4AkI6caaiyc7BcHDwX6CqNDi6RIxfxfWxROsHpll1oBuwn/cFvknvA8uEAkqLk/vzVihI3AQ==}
@@ -6237,6 +6247,12 @@ snapshots:
     dependencies:
       react: 19.0.0
       react-native: 0.79.5(@babel/core@7.28.0)(@types/react@19.0.14)(react@19.0.0)
+
+  react-native-paper-dropdown@2.3.1(react-native-paper@5.14.5(react-native-safe-area-context@5.4.0(react-native@0.79.5(@babel/core@7.28.0)(@types/react@19.0.14)(react@19.0.0))(react@19.0.0))(react-native@0.79.5(@babel/core@7.28.0)(@types/react@19.0.14)(react@19.0.0))(react@19.0.0))(react-native@0.79.5(@babel/core@7.28.0)(@types/react@19.0.14)(react@19.0.0))(react@19.0.0):
+    dependencies:
+      react: 19.0.0
+      react-native: 0.79.5(@babel/core@7.28.0)(@types/react@19.0.14)(react@19.0.0)
+      react-native-paper: 5.14.5(react-native-safe-area-context@5.4.0(react-native@0.79.5(@babel/core@7.28.0)(@types/react@19.0.14)(react@19.0.0))(react@19.0.0))(react-native@0.79.5(@babel/core@7.28.0)(@types/react@19.0.14)(react@19.0.0))(react@19.0.0)
 
   react-native-paper@5.14.5(react-native-safe-area-context@5.4.0(react-native@0.79.5(@babel/core@7.28.0)(@types/react@19.0.14)(react@19.0.0))(react@19.0.0))(react-native@0.79.5(@babel/core@7.28.0)(@types/react@19.0.14)(react@19.0.0))(react@19.0.0):
     dependencies:

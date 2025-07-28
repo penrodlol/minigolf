@@ -17,7 +17,7 @@ export function Root({ contentContainerStyle, ...props }: ModalRootProps) {
         contentContainerStyle={[
           {
             position: 'absolute',
-            top: 100,
+            top: 30,
             insetInline: 10,
             flexDirection: 'column',
             gap: 30,
@@ -40,8 +40,8 @@ export function Header({ title, ...props }: ModalHeaderProps) {
   );
 }
 
-export function Body(props: ModalBodyProps) {
-  return <View {...props} />;
+export function Body({ style, ...props }: ModalBodyProps) {
+  return <View {...props} style={[{ flexDirection: 'column', gap: 16 }, style]} />;
 }
 
 export function Footer(props: ModalFooterProps) {

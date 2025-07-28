@@ -20,7 +20,6 @@ export default function TabsPage() {
       }}
       tabBar={({ state, insets, navigation, descriptors }) => (
         <BottomNavigation.Bar
-          // style={{ overflow: 'hidden', borderRadius: 999, margin: 16, marginBottom: 32, height: 80 }}
           navigationState={state}
           safeAreaInsets={insets}
           renderIcon={({ route, ...props }) => descriptors[route.key].options.tabBarIcon?.({ ...props, size: 20 })}
