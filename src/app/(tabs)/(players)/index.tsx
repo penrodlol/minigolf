@@ -1,8 +1,8 @@
 import Avatar from '@/components/avatar';
 import * as Modal from '@/components/modal';
 import { Player } from '@/db';
-import { usePlayerStore } from '@/lib/store';
 import { useAppTheme } from '@/lib/theme';
+import { usePlayerStore } from '@/store';
 import { useMemo, useState } from 'react';
 import { FlatList, View } from 'react-native';
 import { Button, Card, FAB, IconButton, Surface, Text, TextInput } from 'react-native-paper';

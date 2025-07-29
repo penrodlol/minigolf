@@ -1,46 +1,12 @@
-import { Course, course, CourseCompany, courseCompany, db, Player, player } from '@/db';
+import { Course, course, CourseCompany, courseCompany, db } from '@/db';
 import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query';
 import { asc, eq } from 'drizzle-orm';
 
-declare module '@tanstack/react-query' {
-  interface Register {
-    queryKey: ['players' | 'courseCompanies', ...ReadonlyArray<unknown>];
-    mutationKey: [
-      'savePlayer' | 'deletePlayer' | 'saveCompany' | 'deleteCompany' | 'saveCourse' | 'deleteCourse',
-      ...ReadonlyArray<unknown>,
-    ];
-  }
-}
-
-export type PlayerStorePlayers = NonNullable<ReturnType<typeof usePlayerStore>['players']['data']>;
-export type PlayerStoreSavePlayerProps = Pick<Player, 'name'> & { id: Player['id'] | undefined };
-export type PlayerStoreDeletePlayerProps = Player['id'];
 export type CourseStoreCourseCompanies = NonNullable<ReturnType<typeof useCourseStore>['courseCompanies']['data']>;
 export type CourseStoreSaveCompanyProps = Omit<CourseCompany, 'id'> & { id: CourseCompany['id'] | undefined };
 export type CourseStoreDeleteCompanyProps = CourseCompany['id'];
 export type CourseStoreSaveCourseProps = Omit<Course, 'id'> & { id: Course['id'] | undefined };
 export type CourseStoreDeleteCourseProps = Course['id'];
-
-export const usePlayerStore = () => {
-  const client = useQueryClient();
-
-  return {
-    players: useQuery({ queryKey: ['players'], queryFn: () => db.select().from(player).orderBy(asc(player.name)) }),
-    savePlayer: useMutation({
-      mutationKey: ['savePlayer'],
-      mutationFn: async ({ id, name }: PlayerStoreSavePlayerProps) =>
-        id ? await db.update(player).set({ name }).where(eq(player.id, id)) : await db.insert(player).values({ name }),
-      onSuccess: () => client.invalidateQueries({ queryKey: ['players'] }),
-      onError: (error) => console.error(error),
-    }),
-    deletePlayer: useMutation({
-      mutationKey: ['deletePlayer'],
-      mutationFn: async (props: PlayerStoreDeletePlayerProps) => await db.delete(player).where(eq(player.id, props)),
-      onSuccess: () => client.invalidateQueries({ queryKey: ['players'] }),
-      onError: (error) => console.error(error),
-    }),
-  };
-};
 
 export const useCourseStore = () => {
   const client = useQueryClient();

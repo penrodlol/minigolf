@@ -1,7 +1,7 @@
 import * as Modal from '@/components/modal';
 import { Course, CourseCompany } from '@/db';
-import { useCourseStore } from '@/lib/store';
 import { useAppTheme } from '@/lib/theme';
+import { useCourseStore } from '@/store';
 import { useState } from 'react';
 import { SectionList, View } from 'react-native';
 import { Button, Divider, FAB, Icon, IconButton, Menu, Portal, Surface, Text, TextInput } from 'react-native-paper';
