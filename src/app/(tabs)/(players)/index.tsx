@@ -43,6 +43,7 @@ export default function PlayersPage() {
             <Menu
               visible={menuPlayerId === player.id}
               anchor={<IconButton icon="dots-vertical" onPress={() => setMenuPlayerId(player.id)} />}
+              onDismiss={() => setMenuPlayerId(undefined)}
             >
               <Menu.Item
                 title="Edit"
