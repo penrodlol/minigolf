@@ -18,6 +18,7 @@ export const player = sqliteTable('player', {
   id: primaryKey,
   name: text().notNull().unique(),
   wins: integer().notNull().default(0),
+  holeInOnes: integer().notNull().default(0),
 });
 
 export const courseCompany = sqliteTable('course_company', {
