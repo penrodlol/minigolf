@@ -170,10 +170,11 @@ export default function CoursesPage() {
           />
           <TextInput
             label="Holes"
-            value={String(editCourse?.holes)}
+            value={String(editCourse?.holes ?? 18)}
             keyboardType="numeric"
+            maxLength={2}
             right={<TextInput.Icon icon="target" />}
-            onChangeText={(holes) => setEditCourse({ ...editCourse, holes: Number(holes) })}
+            onChangeText={(holes) => setEditCourse({ ...editCourse, holes: Number(holes.replace(/\D/g, '')) })}
           />
           <Dropdown
             hideMenuHeader
