@@ -28,7 +28,7 @@ export default function PlayersPage() {
               gap: 14,
               paddingVertical: 16,
               paddingLeft: 16,
-              backgroundColor: index % 2 === 0 ? theme.colors.surface : theme.colors.surfaceVariant,
+              backgroundColor: index % 2 === 0 ? theme.colors.surfaceVariant : theme.colors.surface,
             }}
           >
             <Avatar size={40} label={player.name[0]} />
