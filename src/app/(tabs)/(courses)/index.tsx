@@ -160,13 +160,13 @@ export default function CoursesPage() {
             label="Name"
             value={editCourse?.name}
             right={<TextInput.Icon icon="account-edit" />}
-            onChangeText={(name) => setEditCourse({ ...editCourse, name: name.trim() })}
+            onChangeText={(name) => setEditCourse({ ...editCourse, name })}
           />
           <TextInput
             label="Location"
             value={editCourse?.location}
             right={<TextInput.Icon icon="map-marker" />}
-            onChangeText={(location) => setEditCourse({ ...editCourse, location: location.trim() })}
+            onChangeText={(location) => setEditCourse({ ...editCourse, location })}
           />
           <TextInput
             label="Holes"

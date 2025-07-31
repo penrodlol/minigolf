@@ -88,7 +88,7 @@ export default function PlayersPage() {
             label="Player Name"
             value={editPlayer?.name}
             right={<TextInput.Icon icon="account-edit" />}
-            onChangeText={(text) => setEditPlayer((prev) => ({ ...prev, name: text.trim() }))}
+            onChangeText={(name) => setEditPlayer((prev) => ({ ...prev, name }))}
           />
         </Modal.Body>
         <Modal.Footer>

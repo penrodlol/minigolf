@@ -52,9 +52,9 @@ export default function GamesPage() {
           >
             <View style={{ flexDirection: 'row', alignItems: 'center', justifyContent: 'space-between' }}>
               <View style={{ flexDirection: 'row', alignItems: 'center', gap: 4 }}>
-                <Text variant="titleMedium">{game.course.courseCompany.name}</Text>
+                <Text variant="titleMedium">{game.course?.courseCompany.name}</Text>
                 <Icon source="circle-small" size={16} color={theme.colors.onSurfaceVariant} />
-                <Text variant="titleMedium">{game.course.name}</Text>
+                <Text variant="titleMedium">{game.course?.name}</Text>
               </View>
               <IconButton icon="delete" onPress={() => setDeleteGameId(game.id)} />
             </View>
@@ -73,7 +73,7 @@ export default function GamesPage() {
             <View style={{ flexDirection: 'row', alignItems: 'center', gap: 8, marginBottom: 20 }}>
               <Icon source="map-marker" size={18} color={theme.colors.onSurfaceVariant} />
               <Text style={{ color: theme.colors.onSurfaceVariant, ...theme.fonts.bodyMedium }}>
-                {game.course.location}
+                {game.course?.location}
               </Text>
             </View>
             <View style={{ flexDirection: 'row', alignItems: 'center', justifyContent: 'space-between' }}>
