@@ -5,85 +5,8 @@
     {
       "idx": 0,
       "version": "6",
-      "when": 1752631595682,
-      "tag": "0000_short_pride",
-      "breakpoints": true
-    },
-    {
-      "idx": 1,
-      "version": "6",
-      "when": 1753044580421,
-      "tag": "0001_sad_brood",
-      "breakpoints": true
-    },
-    {
-      "idx": 2,
-      "version": "6",
-      "when": 1753232095326,
-      "tag": "0002_classy_alice",
-      "breakpoints": true
-    },
-    {
-      "idx": 3,
-      "version": "6",
-      "when": 1753232234726,
-      "tag": "0003_flowery_onslaught",
-      "breakpoints": true
-    },
-    {
-      "idx": 4,
-      "version": "6",
-      "when": 1753232261594,
-      "tag": "0004_mature_vertigo",
-      "breakpoints": true
-    },
-    {
-      "idx": 5,
-      "version": "6",
-      "when": 1753232305573,
-      "tag": "0005_heavy_jackal",
-      "breakpoints": true
-    },
-    {
-      "idx": 6,
-      "version": "6",
-      "when": 1753232353564,
-      "tag": "0006_colossal_absorbing_man",
-      "breakpoints": true
-    },
-    {
-      "idx": 7,
-      "version": "6",
-      "when": 1753233956418,
-      "tag": "0007_violet_ogun",
-      "breakpoints": true
-    },
-    {
-      "idx": 8,
-      "version": "6",
-      "when": 1753321554166,
-      "tag": "0008_sticky_bullseye",
-      "breakpoints": true
-    },
-    {
-      "idx": 9,
-      "version": "6",
-      "when": 1753321620646,
-      "tag": "0009_perfect_microbe",
-      "breakpoints": true
-    },
-    {
-      "idx": 10,
-      "version": "6",
-      "when": 1753830860831,
-      "tag": "0010_happy_umar",
-      "breakpoints": true
-    },
-    {
-      "idx": 11,
-      "version": "6",
-      "when": 1753933531105,
-      "tag": "0011_lying_nightshade",
+      "when": 1753996949431,
+      "tag": "0000_moaning_the_order",
       "breakpoints": true
     }
   ]

@@ -1,1 +1,0 @@
-ALTER TABLE `player` ADD `holeInOnes` integer DEFAULT 0 NOT NULL;

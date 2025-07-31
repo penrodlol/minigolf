@@ -9,10 +9,7 @@ export type GameHole = typeof gameHole.$inferSelect;
 export type GameHolePlayer = typeof gameHolePlayer.$inferSelect;
 
 const primaryKey = integer().primaryKey({ autoIncrement: true });
-const foreignKey = (...props: Parameters<SQLiteColumnBuilder['references']>) =>
-  integer()
-    .notNull()
-    .references(...props);
+const foreignKey = (...props: Parameters<SQLiteColumnBuilder['references']>) => integer().references(...props);
 
 // ==================================================================
 //                              TABLES
@@ -35,7 +32,7 @@ export const course = sqliteTable('course', {
   name: text().notNull().unique(),
   holes: integer().notNull().default(18),
   location: text().notNull(),
-  courseCompanyId: foreignKey(() => courseCompany.id),
+  courseCompanyId: foreignKey(() => courseCompany.id, { onDelete: 'cascade' }).notNull(),
 });
 
 export const game = sqliteTable('game', {
@@ -51,14 +48,14 @@ export const gameHole = sqliteTable('game_hole', {
   id: primaryKey,
   hole: integer().notNull().default(1),
   completed: integer({ mode: 'boolean' }).notNull().default(false),
-  gameId: foreignKey(() => game.id, { onDelete: 'cascade' }),
+  gameId: foreignKey(() => game.id, { onDelete: 'cascade' }).notNull(),
 });
 
 export const gameHolePlayer = sqliteTable('game_hole_player', {
   id: primaryKey,
   stroke: integer().notNull().default(0),
-  playerId: foreignKey(() => player.id),
-  gameHoleId: foreignKey(() => gameHole.id, { onDelete: 'cascade' }),
+  playerId: foreignKey(() => player.id).notNull(),
+  gameHoleId: foreignKey(() => gameHole.id, { onDelete: 'cascade' }).notNull(),
 });
 
 // ==================================================================

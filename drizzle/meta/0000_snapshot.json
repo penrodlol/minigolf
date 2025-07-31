@@ -1,7 +1,7 @@
 {
   "version": "6",
   "dialect": "sqlite",
-  "id": "7f9854e5-11d3-4345-bd96-6c2fd6910910",
+  "id": "c57d1310-1772-4f53-badd-820968044e53",
   "prevId": "00000000-0000-0000-0000-000000000000",
   "tables": {
     "course": {
@@ -28,11 +28,71 @@
           "notNull": true,
           "autoincrement": false,
           "default": 18
+        },
+        "location": {
+          "name": "location",
+          "type": "text",
+          "primaryKey": false,
+          "notNull": true,
+          "autoincrement": false
+        },
+        "courseCompanyId": {
+          "name": "courseCompanyId",
+          "type": "integer",
+          "primaryKey": false,
+          "notNull": true,
+          "autoincrement": false
         }
       },
       "indexes": {
         "course_name_unique": {
           "name": "course_name_unique",
+          "columns": [
+            "name"
+          ],
+          "isUnique": true
+        }
+      },
+      "foreignKeys": {
+        "course_courseCompanyId_course_company_id_fk": {
+          "name": "course_courseCompanyId_course_company_id_fk",
+          "tableFrom": "course",
+          "tableTo": "course_company",
+          "columnsFrom": [
+            "courseCompanyId"
+          ],
+          "columnsTo": [
+            "id"
+          ],
+          "onDelete": "cascade",
+          "onUpdate": "no action"
+        }
+      },
+      "compositePrimaryKeys": {},
+      "uniqueConstraints": {},
+      "checkConstraints": {}
+    },
+    "course_company": {
+      "name": "course_company",
+      "columns": {
+        "id": {
+          "name": "id",
+          "type": "integer",
+          "primaryKey": true,
+          "notNull": true,
+          "autoincrement": true
+        },
+        "name": {
+          "name": "name",
+          "type": "text",
+          "primaryKey": false,
+          "notNull": true,
+          "autoincrement": false
+        }
+      },
+      "indexes": {
+        "course_company_name_unique": {
+          "name": "course_company_name_unique",
           "columns": [
             "name"
           ],
@@ -74,7 +134,7 @@
           "name": "courseId",
           "type": "integer",
           "primaryKey": false,
-          "notNull": true,
+          "notNull": false,
           "autoincrement": false
         }
       },
@@ -197,7 +257,7 @@
           "columnsTo": [
             "id"
           ],
-          "onDelete": "cascade",
+          "onDelete": "no action",
           "onUpdate": "no action"
         },
         "game_hole_player_gameHoleId_game_hole_id_fk": {
@@ -234,6 +294,22 @@
           "primaryKey": false,
           "notNull": true,
           "autoincrement": false
+        },
+        "wins": {
+          "name": "wins",
+          "type": "integer",
+          "primaryKey": false,
+          "notNull": true,
+          "autoincrement": false,
+          "default": 0
+        },
+        "holeInOnes": {
+          "name": "holeInOnes",
+          "type": "integer",
+          "primaryKey": false,
+          "notNull": true,
+          "autoincrement": false,
+          "default": 0
         }
       },
       "indexes": {
