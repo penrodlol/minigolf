@@ -14,6 +14,10 @@ const foreignKey = (...props: Parameters<SQLiteColumnBuilder['references']>) =>
     .notNull()
     .references(...props);
 
+// ==================================================================
+//                              TABLES
+// ==================================================================
+
 export const player = sqliteTable('player', {
   id: primaryKey,
   name: text().notNull().unique(),
@@ -33,14 +37,6 @@ export const course = sqliteTable('course', {
   location: text().notNull(),
   courseCompanyId: foreignKey(() => courseCompany.id),
 });
-
-export const courseCompanyRelations = relations(courseCompany, ({ many }) => ({
-  courses: many(course),
-}));
-
-export const courseRelations = relations(course, ({ one }) => ({
-  courseCompany: one(courseCompany, { fields: [course.courseCompanyId], references: [courseCompany.id] }),
-}));
 
 export const game = sqliteTable('game', {
   id: primaryKey,
@@ -65,7 +61,25 @@ export const gameHolePlayer = sqliteTable('game_hole_player', {
   gameHoleId: foreignKey(() => gameHole.id, { onDelete: 'cascade' }),
 });
 
-export const gameHoleRelations = relations(gameHole, ({ many }) => ({
+// ==================================================================
+//                            RELATIONS
+// ==================================================================
+
+export const courseCompanyRelations = relations(courseCompany, ({ many }) => ({
+  courses: many(course),
+}));
+
+export const courseRelations = relations(course, ({ one }) => ({
+  courseCompany: one(courseCompany, { fields: [course.courseCompanyId], references: [courseCompany.id] }),
+}));
+
+export const gameRelations = relations(game, ({ one, many }) => ({
+  course: one(course, { fields: [game.courseId], references: [course.id] }),
+  gameHoles: many(gameHole),
+}));
+
+export const gameHoleRelations = relations(gameHole, ({ one, many }) => ({
+  game: one(game, { fields: [gameHole.gameId], references: [game.id] }),
   gameHolePlayer: many(gameHolePlayer),
 }));
 
