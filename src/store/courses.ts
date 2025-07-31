@@ -12,6 +12,7 @@ export const useCourseStore = () => {
   const client = useQueryClient();
 
   return {
+    courses: useQuery({ queryKey: ['courses'], queryFn: () => db.select().from(course).orderBy(asc(course.name)) }),
     courseCompanies: useQuery({
       queryKey: ['courseCompanies'],
       queryFn: () =>

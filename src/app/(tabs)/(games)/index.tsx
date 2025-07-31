@@ -1,19 +1,29 @@
 import Avatar from '@/components/avatar';
+import * as Modal from '@/components/modal';
+import { Course, Game } from '@/db';
 import { useAppTheme } from '@/lib/theme';
-import { useGamesStore } from '@/store';
+import { useCourseStore, useGamesStore, usePlayerStore } from '@/store';
 import dayjs from 'dayjs';
+import { useState } from 'react';
 import { FlatList, View } from 'react-native';
-import { Button, Chip, FAB, Icon, Surface, Text } from 'react-native-paper';
+import { Button, FAB, Icon, IconButton, Surface, Text } from 'react-native-paper';
+import { Dropdown, MultiSelectDropdown } from 'react-native-paper-dropdown';
 
 export default function GamesPage() {
   const theme = useAppTheme();
-  const store = useGamesStore();
+  const gamesStore = useGamesStore();
+  const coursesStore = useCourseStore();
+  const playersStore = usePlayerStore();
+  const [deleteGameId, setDeleteGameId] = useState<Game['id']>();
+  const [addGameModalVisible, setAddGameModalVisible] = useState(false);
+  const [newGameCourseId, setNewGameCourseId] = useState<Course['id']>();
+  const [newGamePlayerIds, setNewGamePlayerIds] = useState<Array<string>>([]);
 
   return (
-    <View style={{ flex: 1, flexDirection: 'column', gap: 40 }}>
+    <View style={{ flex: 1 }}>
       <Surface elevation={2} style={{ padding: 30, borderBottomEndRadius: 20, borderBottomStartRadius: 20 }}>
         <View style={{ flexDirection: 'row', alignItems: 'flex-end', justifyContent: 'space-between' }}>
-          {[store.topPlayers.data?.[1], store.topPlayers.data?.[0], store.topPlayers.data?.[2]]
+          {[gamesStore.topPlayers.data?.[1], gamesStore.topPlayers.data?.[0], gamesStore.topPlayers.data?.[2]]
             .filter((player) => !!player)
             .map((player, index) => (
               <View key={player.id} style={{ flexDirection: 'column', alignItems: 'center', gap: 8 }}>
@@ -27,13 +37,14 @@ export default function GamesPage() {
         </View>
       </Surface>
       <FlatList
-        data={store.games.data}
+        data={gamesStore.games.data}
         keyExtractor={(game) => String(game.id)}
+        contentContainerStyle={{ paddingTop: 40, paddingBottom: 56 }}
         renderItem={({ item: game, index }) => (
           <View
             style={{
               flexDirection: 'column',
-              gap: 6,
+              gap: 4,
               paddingHorizontal: 16,
               paddingVertical: 32,
               backgroundColor: index % 2 === 0 ? theme.colors.surfaceVariant : theme.colors.surface,
@@ -45,9 +56,13 @@ export default function GamesPage() {
                 <Icon source="circle-small" size={16} color={theme.colors.onSurfaceVariant} />
                 <Text variant="titleMedium">{game.course.name}</Text>
               </View>
-              <Chip compact elevation={3} textStyle={{ ...theme.fonts.labelSmall }}>
+              <IconButton icon="delete" onPress={() => setDeleteGameId(game.id)} />
+            </View>
+            <View style={{ flexDirection: 'row', alignItems: 'center', gap: 8 }}>
+              <Icon source="list-status" size={18} color={theme.colors.onSurfaceVariant} />
+              <Text style={{ color: theme.colors.onSurfaceVariant, ...theme.fonts.bodyMedium }}>
                 {game.completed ? 'Completed' : 'In Progress'}
-              </Chip>
+              </Text>
             </View>
             <View style={{ flexDirection: 'row', alignItems: 'center', gap: 8 }}>
               <Icon source="calendar" size={18} color={theme.colors.onSurfaceVariant} />
@@ -74,7 +89,62 @@ export default function GamesPage() {
           </View>
         )}
       />
-      <FAB icon="plus" style={{ position: 'absolute', bottom: 16, right: 16 }} />
+      <FAB
+        icon="plus"
+        style={{ position: 'absolute', bottom: 16, right: 16 }}
+        onPress={() => (setNewGameCourseId(undefined), setNewGamePlayerIds([]), setAddGameModalVisible(true))}
+      />
+      <Modal.Root visible={!!deleteGameId} onDismiss={() => setDeleteGameId(undefined)}>
+        <Modal.Header title="Delete Game" />
+        <Modal.Body>
+          <Text>Are you sure you want to delete this game?</Text>
+        </Modal.Body>
+        <Modal.Footer>
+          <Button onPress={() => setDeleteGameId(undefined)}>Cancel</Button>
+          <Button
+            mode="contained-tonal"
+            onPress={() => (gamesStore.deleteGame.mutateAsync(Number(deleteGameId)), setDeleteGameId(undefined))}
+          >
+            Delete
+          </Button>
+        </Modal.Footer>
+      </Modal.Root>
+      <Modal.Root visible={addGameModalVisible} onDismiss={() => setAddGameModalVisible(false)}>
+        <Modal.Header title="New Game" />
+        <Modal.Body>
+          <Dropdown
+            hideMenuHeader
+            label="Course"
+            placeholder="Select a course"
+            options={coursesStore.courses.data?.map(({ name, id }) => ({ label: name, value: String(id) })) ?? []}
+            value={String(newGameCourseId ?? '')}
+            onSelect={(value) => setNewGameCourseId(value ? Number(value) : undefined)}
+          />
+          <MultiSelectDropdown
+            hideMenuHeader
+            label="Players"
+            placeholder="Select players"
+            options={playersStore.players.data?.map(({ name, id }) => ({ label: name, value: String(id) })) ?? []}
+            value={newGamePlayerIds}
+            onSelect={setNewGamePlayerIds}
+          />
+        </Modal.Body>
+        <Modal.Footer>
+          <Button onPress={() => setAddGameModalVisible(false)}>Cancel</Button>
+          <Button
+            mode="contained-tonal"
+            disabled={!newGameCourseId || newGamePlayerIds.length <= 1}
+            onPress={async () => {
+              if (!newGameCourseId || newGamePlayerIds.length <= 1) return;
+              const playerIds = newGamePlayerIds.map((id) => Number(id));
+              await gamesStore.addGame.mutateAsync({ courseId: newGameCourseId, playerIds });
+              setAddGameModalVisible(false);
+            }}
+          >
+            Start
+          </Button>
+        </Modal.Footer>
+      </Modal.Root>
     </View>
   );
 }

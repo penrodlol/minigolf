@@ -1,8 +1,17 @@
 declare module '@tanstack/react-query' {
   interface Register {
-    queryKey: ['players' | 'courseCompanies' | 'topPlayers' | 'games', ...ReadonlyArray<unknown>];
+    queryKey: ['players' | 'courses' | 'courseCompanies' | 'topPlayers' | 'games', ...ReadonlyArray<unknown>];
     mutationKey: [
-      'savePlayer' | 'deletePlayer' | 'saveCompany' | 'deleteCompany' | 'saveCourse' | 'deleteCourse',
+      (
+        | 'savePlayer'
+        | 'deletePlayer'
+        | 'saveCompany'
+        | 'deleteCompany'
+        | 'saveCourse'
+        | 'deleteCourse'
+        | 'addGame'
+        | 'deleteGame'
+      ),
       ...ReadonlyArray<unknown>,
     ];
   }

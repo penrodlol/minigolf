@@ -57,7 +57,7 @@ export const gameHole = sqliteTable('game_hole', {
 export const gameHolePlayer = sqliteTable('game_hole_player', {
   id: primaryKey,
   stroke: integer().notNull().default(0),
-  playerId: foreignKey(() => player.id, { onDelete: 'cascade' }),
+  playerId: foreignKey(() => player.id),
   gameHoleId: foreignKey(() => gameHole.id, { onDelete: 'cascade' }),
 });
 
