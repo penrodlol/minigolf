@@ -13,7 +13,7 @@ export default function GamePage() {
   const theme = useAppTheme();
   const router = useRouter();
   const store = useGameStore(Number(params.id));
-  const [leaderboardVisible, setLeaderboardVisible] = useState(store.game.data?.completed);
+  const [leaderboardVisible, setLeaderboardVisible] = useState(false);
   const [strokes, setStrokes] = useState<Record<GameHolePlayer['id'], GameHolePlayer['stroke']>>({});
 
   useFocusEffect(useCallback(() => setStrokes({}), []));
@@ -87,7 +87,6 @@ export default function GamePage() {
           renderItem={({ item: gameHolePlayer }) => (
             <TextInput
               keyboardType="numeric"
-              disabled={store.game.data?.completed}
               label={gameHolePlayer.player.name}
               value={String(strokes[gameHolePlayer.id] ?? (gameHolePlayer.stroke === 0 ? '' : gameHolePlayer.stroke))}
               onChangeText={(stroke) => (
