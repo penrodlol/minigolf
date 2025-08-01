@@ -67,8 +67,8 @@ export const useGameStore = (id: Game['id']) => {
         game?.gameHoles
           .filter((hole) => hole.hole !== game?.gameHoles.length)
           .every((hole) => hole.gameHolePlayer.every((player) => player.stroke > 0)),
-      getLeaderBoard: (game: (typeof gameData)['data']) =>
-        game?.gameHoles.reduce(
+      getLeaderBoard: (game: (typeof gameData)['data']) => {
+        const payload = game?.gameHoles.reduce(
           (acc, hole) => {
             hole.gameHolePlayer.forEach(({ player, stroke }) => {
               if (!acc[player.id]) acc[player.id] = { name: player.name, strokes: 0 };
@@ -77,7 +77,12 @@ export const useGameStore = (id: Game['id']) => {
             return acc;
           },
           {} as Record<Player['id'], Pick<Player, 'name'> & { strokes: GameHolePlayer['stroke'] }>,
-        ),
+        );
+
+        return Object.entries(payload ?? {})
+          .sort(([, a], [, b]) => a.strokes - b.strokes)
+          .map(([id, { name, strokes }]) => ({ id: Number(id), name, strokes }));
+      },
     },
   };
 };

@@ -31,16 +31,14 @@ export default function GamePage() {
     <View style={{ flex: 1 }}>
       <Surface elevation={2} style={{ gap: 10, padding: 20, borderBottomEndRadius: 20, borderBottomStartRadius: 20 }}>
         <View style={{ flexDirection: 'column', gap: 8, display: leaderboardVisible ? 'flex' : 'none' }}>
-          {Object.values(leaderboard ?? {})
-            .sort((a, b) => a.strokes - b.strokes)
-            .map((player, index) => (
-              <View key={index} style={{ flexDirection: 'row', alignItems: 'center', gap: 10 }}>
-                <Avatar label={player.name.charAt(0)} size={24} />
-                <Text>{player.name}</Text>
-                <Divider style={{ flex: 1 }} />
-                <Text style={{ color: theme.colors.primary, ...theme.fonts.titleMedium }}>{player.strokes}</Text>
-              </View>
-            ))}
+          {leaderboard.map((player, index) => (
+            <View key={index} style={{ flexDirection: 'row', alignItems: 'center', gap: 10 }}>
+              <Avatar label={player.name.charAt(0)} size={24} />
+              <Text>{player.name}</Text>
+              <Divider style={{ flex: 1 }} />
+              <Text style={{ color: theme.colors.primary, ...theme.fonts.titleMedium }}>{player.strokes}</Text>
+            </View>
+          ))}
         </View>
         <Button
           icon={leaderboardVisible ? 'chevron-up' : 'chevron-down'}

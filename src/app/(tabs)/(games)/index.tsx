@@ -88,7 +88,11 @@ export default function GamesPage() {
               </View>
               <Button
                 mode={game.completed ? 'text' : 'elevated'}
-                onPress={() => router.push({ pathname: '/[id]', params: { id: game.id, hole: 1 } })}
+                onPress={() =>
+                  game.completed
+                    ? router.push({ pathname: '/[id]/results', params: { id: game.id } })
+                    : router.push({ pathname: '/[id]', params: { id: game.id, hole: 1 } })
+                }
               >
                 {game.completed ? 'View Results' : 'Play'}
               </Button>
