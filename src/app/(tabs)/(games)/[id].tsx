@@ -1,5 +1,5 @@
 import Avatar from '@/components/avatar';
-import { GameHolePlayer, Player } from '@/db';
+import { GameHolePlayer } from '@/db';
 import { useAppTheme } from '@/lib/theme';
 import { useGameStore } from '@/store';
 import dayjs from 'dayjs';
@@ -13,38 +13,15 @@ export default function GamePage() {
   const theme = useAppTheme();
   const router = useRouter();
   const store = useGameStore(Number(params.id));
-  const [leaderboardVisible, setLeaderboardVisible] = useState(false);
+  const [leaderboardVisible, setLeaderboardVisible] = useState(store.game.data?.completed);
   const [strokes, setStrokes] = useState<Record<GameHolePlayer['id'], GameHolePlayer['stroke']>>({});
 
   useFocusEffect(useCallback(() => setStrokes({}), []));
 
   const lastHoleNumber = useMemo(() => store.game.data?.gameHoles.length ?? 0, [store.game.data]);
-  const allPreviousHolesComplete = useMemo(
-    () =>
-      store.game.data?.gameHoles
-        .filter((hole) => hole.hole !== store.game.data?.gameHoles.length)
-        .every((hole) => hole.gameHolePlayer.every((player) => player.stroke > 0)),
-    [store.game.data?.gameHoles],
-  );
-  const hole = useMemo(
-    () => store.game.data?.gameHoles.find((h) => h.hole === Number(params.hole)),
-    [store.game.data, params.hole],
-  );
-  const leaderboard = useMemo(
-    () =>
-      store.game.data?.gameHoles.reduce(
-        (acc, currentHole) => {
-          currentHole.gameHolePlayer.forEach((player) => {
-            if (!acc[player.player.id]) acc[player.player.id] = { name: player.player.name, strokes: 0 };
-            acc[player.player.id].strokes += player.stroke;
-          });
-          return acc;
-        },
-        {} as Record<Player['id'], Pick<Player, 'name'> & { strokes: GameHolePlayer['stroke'] }>,
-      ),
-    [store.game.data?.gameHoles],
-  );
-
+  const allHolesComplete = useMemo(() => store.utils.getAllHolesComplete(store.game.data), [store.game.data]);
+  const hole = useMemo(() => store.utils.getHole(store.game.data, params.hole), [store.game.data, params.hole]);
+  const leaderboard = useMemo(() => store.utils.getLeaderBoard(store.game.data), [store.game.data]);
   const goToHole = useCallback(
     (hole: string) => (router.push({ pathname: '/[id]', params: { id: params.id, hole } }), setStrokes({})),
     [params.id, router],
@@ -137,12 +114,18 @@ export default function GamePage() {
               Object.keys(strokes).length === 0 ||
               Object.values(strokes).some((stroke) => stroke === 0) ||
               (lastHoleNumber === hole?.hole &&
-                (!allPreviousHolesComplete || Object.keys(strokes).length !== hole?.gameHolePlayer.length))
+                (!allHolesComplete || Object.keys(strokes).length !== hole?.gameHolePlayer.length))
             }
             onPress={async () => {
+              if (!store.game.data) return;
+
               if (hole?.hole !== lastHoleNumber) {
                 await store.saveGameHolePlayers.mutateAsync(strokes);
-                return goToHole(String((hole?.hole ?? 1) + 1));
+                goToHole(String((hole?.hole ?? 1) + 1));
+              } else {
+                const winner = Number(Object.keys(leaderboard ?? {})[0]);
+                await store.saveGameHolePlayers.mutateAsync(strokes);
+                await store.saveGame.mutateAsync({ id: store.game.data.id, strokes, winner });
               }
             }}
           >

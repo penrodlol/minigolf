@@ -12,6 +12,7 @@ declare module '@tanstack/react-query' {
         | 'addGame'
         | 'deleteGame'
         | 'saveGameHolePlayers'
+        | 'saveGame'
       ),
       ...ReadonlyArray<unknown>,
     ];
