@@ -14,8 +14,8 @@
       "adaptiveIcon": { "foregroundImage": "./src/assets/adaptive-icon.png", "backgroundColor": "#ffffff" },
       "edgeToEdgeEnabled": true
     },
-    "web": { "bundler": "metro", "output": "static", "favicon": "./src/assets/favicon.png" },
+    "web": { "bundler": "metro" },
     "experiments": { "typedRoutes": true },
-    "plugins": ["expo-router", "expo-sqlite"]
+    "plugins": ["expo-router", "expo-font", "expo-sqlite"]
   }
 }

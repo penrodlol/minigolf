@@ -1,8 +1,8 @@
 {
   "version": "6",
   "dialect": "sqlite",
-  "id": "c57d1310-1772-4f53-badd-820968044e53",
-  "prevId": "00000000-0000-0000-0000-000000000000",
+  "id": "c165868d-abc2-4c0f-8cc2-c20112e0d85b",
+  "prevId": "c57d1310-1772-4f53-badd-820968044e53",
   "tables": {
     "course": {
       "name": "course",
@@ -175,14 +175,6 @@
           "notNull": true,
           "autoincrement": false,
           "default": 1
-        },
-        "completed": {
-          "name": "completed",
-          "type": "integer",
-          "primaryKey": false,
-          "notNull": true,
-          "autoincrement": false,
-          "default": false
         },
         "gameId": {
           "name": "gameId",
