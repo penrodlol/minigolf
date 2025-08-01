@@ -20,7 +20,7 @@ export default function TabsPage() {
       }}
       tabBar={({ state, insets, navigation, descriptors }) => (
         <BottomNavigation.Bar
-          navigationState={state}
+          navigationState={{ ...state, routes: state.routes.filter((route) => route.name !== '(games)/[id]') }}
           safeAreaInsets={insets}
           renderIcon={({ route, ...props }) => descriptors[route.key].options.tabBarIcon?.({ ...props, size: 20 })}
           getLabelText={({ route }) => String(descriptors[route.key].options.tabBarLabel)}
@@ -44,6 +44,7 @@ export default function TabsPage() {
         name="(players)/index"
         options={{ tabBarLabel: 'Players', tabBarIcon: () => <Icon source="account-multiple" size={20} /> }}
       />
+      <Tabs.Screen name="(games)/[id]" options={{ href: null }} />
     </Tabs>
   );
 }

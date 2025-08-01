@@ -1,6 +1,6 @@
 declare module '@tanstack/react-query' {
   interface Register {
-    queryKey: ['players' | 'courses' | 'courseCompanies' | 'topPlayers' | 'games', ...ReadonlyArray<unknown>];
+    queryKey: ['players' | 'courses' | 'courseCompanies' | 'topPlayers' | 'games' | 'game', ...ReadonlyArray<unknown>];
     mutationKey: [
       (
         | 'savePlayer'
@@ -11,6 +11,7 @@ declare module '@tanstack/react-query' {
         | 'deleteCourse'
         | 'addGame'
         | 'deleteGame'
+        | 'saveGameHolePlayers'
       ),
       ...ReadonlyArray<unknown>,
     ];
@@ -18,5 +19,6 @@ declare module '@tanstack/react-query' {
 }
 
 export * from './courses';
+export * from './game';
 export * from './games';
 export * from './players';

@@ -4,6 +4,7 @@ import { Course, Game } from '@/db';
 import { useAppTheme } from '@/lib/theme';
 import { useCourseStore, useGamesStore, usePlayerStore } from '@/store';
 import dayjs from 'dayjs';
+import { useRouter } from 'expo-router';
 import { useState } from 'react';
 import { FlatList, View } from 'react-native';
 import { Button, FAB, Icon, IconButton, Surface, Text } from 'react-native-paper';
@@ -11,6 +12,7 @@ import { Dropdown, MultiSelectDropdown } from 'react-native-paper-dropdown';
 
 export default function GamesPage() {
   const theme = useAppTheme();
+  const router = useRouter();
   const gamesStore = useGamesStore();
   const coursesStore = useCourseStore();
   const playersStore = usePlayerStore();
@@ -84,7 +86,12 @@ export default function GamesPage() {
                   </View>
                 ))}
               </View>
-              <Button mode={game.completed ? 'text' : 'elevated'}>{game.completed ? 'View Results' : 'Play'}</Button>
+              <Button
+                mode={game.completed ? 'text' : 'elevated'}
+                onPress={() => router.push({ pathname: '/[id]', params: { id: game.id, hole: 1 } })}
+              >
+                {game.completed ? 'View Results' : 'Play'}
+              </Button>
             </View>
           </View>
         )}

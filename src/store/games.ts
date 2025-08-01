@@ -2,10 +2,10 @@ import { course, db, Game, game, gameHole, gameHolePlayer, Player, player } from
 import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query';
 import { asc, desc, eq } from 'drizzle-orm';
 
-export type GameStoreTopPlayers = NonNullable<ReturnType<typeof useGamesStore>['topPlayers']['data']>;
-export type GameStoreGames = NonNullable<ReturnType<typeof useGamesStore>['games']['data']>;
-export type GameStoreSaveGameProps = { id?: Game['id']; courseId: Game['courseId']; playerIds: Array<Player['id']> };
-export type GameStoreDeleteGameProps = Game['id'];
+export type GamesStoreTopPlayers = NonNullable<ReturnType<typeof useGamesStore>['topPlayers']['data']>;
+export type GamesStoreGames = NonNullable<ReturnType<typeof useGamesStore>['games']['data']>;
+export type GamesStoreSaveGameProps = { id?: Game['id']; courseId: Game['courseId']; playerIds: Array<Player['id']> };
+export type GamesStoreDeleteGameProps = Game['id'];
 
 export const useGamesStore = () => {
   const client = useQueryClient();
@@ -25,7 +25,7 @@ export const useGamesStore = () => {
             gameHoles: {
               limit: 1,
               with: { gameHolePlayer: { with: { player: true } } },
-              orderBy: [asc(gameHole.completed), asc(gameHole.hole)],
+              orderBy: [asc(gameHole.hole)],
             },
           },
           orderBy: [asc(game.completed), desc(game.playedOn)],
@@ -33,11 +33,13 @@ export const useGamesStore = () => {
     }),
     addGame: useMutation({
       mutationKey: ['addGame'],
-      mutationFn: async ({ id, courseId, playerIds }: GameStoreSaveGameProps) => {
+      mutationFn: async ({ id, courseId, playerIds }: GamesStoreSaveGameProps) => {
         if (id) {
         } else {
           await db.transaction(async (tx) => {
             const newGame = tx.insert(game).values({ courseId }).returning().get();
+            if (!newGame.courseId) return tx.rollback();
+
             const newGameCourse = tx.select().from(course).where(eq(course.id, newGame.courseId)).get();
             if (!newGameCourse) return tx.rollback();
 
@@ -58,7 +60,7 @@ export const useGamesStore = () => {
     }),
     deleteGame: useMutation({
       mutationKey: ['deleteGame'],
-      mutationFn: async (props: GameStoreDeleteGameProps) => db.delete(game).where(eq(game.id, props)),
+      mutationFn: async (props: GamesStoreDeleteGameProps) => db.delete(game).where(eq(game.id, props)),
       onSuccess: () => client.invalidateQueries({ queryKey: ['games'] }),
       onError: (error) => console.error(error),
     }),

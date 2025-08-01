@@ -1,0 +1,1 @@
+ALTER TABLE `game_hole` DROP COLUMN `completed`;
