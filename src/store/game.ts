@@ -57,7 +57,12 @@ export const useGameStore = (id: Game['id']) => {
             .set({ wins: sql`${player.wins} + 1` })
             .where(eq(player.id, props.winner));
         }),
-      onSuccess: () => client.invalidateQueries({ queryKey: ['game', id] }),
+      onSuccess: () => (
+        client.invalidateQueries({ queryKey: ['game', id] }),
+        client.invalidateQueries({ queryKey: ['games'] }),
+        client.invalidateQueries({ queryKey: ['topPlayers'] }),
+        client.invalidateQueries({ queryKey: ['players'] })
+      ),
       onError: (error) => console.error(error),
     }),
     utils: {

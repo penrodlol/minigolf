@@ -120,6 +120,7 @@ export default function GamePage() {
               if (hole?.hole !== lastHoleNumber) return goToHole(String((hole?.hole ?? 1) + 1));
               const winner = Number(Object.keys(leaderboard ?? {})[0]);
               await store.saveGame.mutateAsync({ id: store.game.data.id, strokes, winner });
+              router.push({ pathname: '/[id]/results', params: { id: store.game.data.id } });
             }}
           >
             {hole?.hole === lastHoleNumber ? 'Finish Game' : 'Next Hole'}
