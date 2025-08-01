@@ -1,5 +1,5 @@
 import Avatar from '@/components/avatar';
-import { GameHolePlayer } from '@/db';
+import { GameHolePlayer, Player } from '@/db';
 import { useAppTheme } from '@/lib/theme';
 import { useGameStore } from '@/store';
 import dayjs from 'dayjs';
@@ -7,13 +7,6 @@ import { useFocusEffect, useLocalSearchParams, useRouter } from 'expo-router';
 import { useCallback, useMemo, useState } from 'react';
 import { FlatList, Keyboard, ScrollView, View } from 'react-native';
 import { Button, Divider, Icon, SegmentedButtons, Surface, Text, TextInput } from 'react-native-paper';
-
-const mockLeaderBoard = [
-  { name: 'Christian', score: 32, label: 'C' },
-  { name: 'Zach', score: 34, label: 'Z' },
-  { name: 'Mom', score: 36, label: 'M' },
-  { name: 'Dad', score: 38, label: 'D' },
-];
 
 export default function GamePage() {
   const params = useLocalSearchParams<{ id: string; hole: string }>();
@@ -37,6 +30,20 @@ export default function GamePage() {
     () => store.game.data?.gameHoles.find((h) => h.hole === Number(params.hole)),
     [store.game.data, params.hole],
   );
+  const leaderboard = useMemo(
+    () =>
+      store.game.data?.gameHoles.reduce(
+        (acc, currentHole) => {
+          currentHole.gameHolePlayer.forEach((player) => {
+            if (!acc[player.player.id]) acc[player.player.id] = { name: player.player.name, strokes: 0 };
+            acc[player.player.id].strokes += player.stroke;
+          });
+          return acc;
+        },
+        {} as Record<Player['id'], Pick<Player, 'name'> & { strokes: GameHolePlayer['stroke'] }>,
+      ),
+    [store.game.data?.gameHoles],
+  );
 
   const goToHole = useCallback(
     (hole: string) => (router.push({ pathname: '/[id]', params: { id: params.id, hole } }), setStrokes({})),
@@ -47,14 +54,16 @@ export default function GamePage() {
     <View style={{ flex: 1 }}>
       <Surface elevation={2} style={{ gap: 10, padding: 20, borderBottomEndRadius: 20, borderBottomStartRadius: 20 }}>
         <View style={{ flexDirection: 'column', gap: 8, display: leaderboardVisible ? 'flex' : 'none' }}>
-          {mockLeaderBoard.map((player, index) => (
-            <View key={index} style={{ flexDirection: 'row', alignItems: 'center', gap: 10 }}>
-              <Avatar label={player.label} size={24} />
-              <Text>{player.name}</Text>
-              <Divider style={{ flex: 1 }} />
-              <Text style={{ color: theme.colors.primary, ...theme.fonts.titleMedium }}>{player.score}</Text>
-            </View>
-          ))}
+          {Object.values(leaderboard ?? {})
+            .sort((a, b) => a.strokes - b.strokes)
+            .map((player, index) => (
+              <View key={index} style={{ flexDirection: 'row', alignItems: 'center', gap: 10 }}>
+                <Avatar label={player.name.charAt(0)} size={24} />
+                <Text>{player.name}</Text>
+                <Divider style={{ flex: 1 }} />
+                <Text style={{ color: theme.colors.primary, ...theme.fonts.titleMedium }}>{player.strokes}</Text>
+              </View>
+            ))}
         </View>
         <Button
           icon={leaderboardVisible ? 'chevron-up' : 'chevron-down'}
