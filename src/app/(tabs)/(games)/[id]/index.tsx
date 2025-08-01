@@ -118,14 +118,10 @@ export default function GamePage() {
             onPress={async () => {
               if (!store.game.data) return;
 
-              if (hole?.hole !== lastHoleNumber) {
-                await store.saveGameHolePlayers.mutateAsync(strokes);
-                goToHole(String((hole?.hole ?? 1) + 1));
-              } else {
-                const winner = Number(Object.keys(leaderboard ?? {})[0]);
-                await store.saveGameHolePlayers.mutateAsync(strokes);
-                await store.saveGame.mutateAsync({ id: store.game.data.id, strokes, winner });
-              }
+              await store.saveGameHolePlayers.mutateAsync(strokes);
+              if (hole?.hole !== lastHoleNumber) return goToHole(String((hole?.hole ?? 1) + 1));
+              const winner = Number(Object.keys(leaderboard ?? {})[0]);
+              await store.saveGame.mutateAsync({ id: store.game.data.id, strokes, winner });
             }}
           >
             {hole?.hole === lastHoleNumber ? 'Finish Game' : 'Next Hole'}
