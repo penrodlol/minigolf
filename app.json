@@ -8,10 +8,10 @@
     "userInterfaceStyle": "automatic",
     "newArchEnabled": true,
     "scheme": "minigolf",
-    "splash": { "image": "./src/assets/splash-icon.png", "resizeMode": "contain", "backgroundColor": "#ffffff" },
+    "splash": { "image": "./src/assets/icon.png", "resizeMode": "contain", "backgroundColor": "#5f8787" },
     "ios": { "supportsTablet": true },
     "android": {
-      "adaptiveIcon": { "foregroundImage": "./src/assets/adaptive-icon.png", "backgroundColor": "#ffffff" },
+      "adaptiveIcon": { "foregroundImage": "./src/assets/icon.png", "backgroundColor": "#5f8787" },
       "edgeToEdgeEnabled": true,
       "package": "com.penrodlol.minigolf"
     },
