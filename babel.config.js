@@ -3,6 +3,6 @@ module.exports = function (api) {
   return {
     presets: ['babel-preset-expo'],
     plugins: [['inline-import', { extensions: ['.sql'] }], 'react-native-reanimated/plugin'],
-    env: { production: { plugins: ['react-native-paper/babel'] } },
+    env: { preview: { plugins: ['react-native-paper/babel'] }, production: { plugins: ['react-native-paper/babel'] } },
   };
 };
