@@ -17,7 +17,20 @@
     },
     "web": { "bundler": "metro" },
     "experiments": { "typedRoutes": true },
-    "plugins": ["expo-router", "expo-font", "expo-sqlite"],
-    "extra": { "router": {}, "eas": { "projectId": "57545519-ceb9-45fa-9f45-baf99d3e5416" } }
+    "extra": { "router": {}, "eas": { "projectId": "57545519-ceb9-45fa-9f45-baf99d3e5416" } },
+    "plugins": [
+      "expo-router",
+      "expo-font",
+      "expo-sqlite",
+      [
+        "expo-splash-screen",
+        {
+          "backgroundColor": "#5f8787",
+          "image": "./src/assets/icon.png",
+          "dark": { "image": "./src/assets/icon.png", "backgroundColor": "#5f8787" },
+          "imageWidth": 200
+        }
+      ]
+    ]
   }
 }

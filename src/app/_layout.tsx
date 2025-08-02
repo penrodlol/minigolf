@@ -11,6 +11,7 @@ import { useEffect } from 'react';
 import { useColorScheme } from 'react-native';
 import { adaptNavigationTheme, PaperProvider } from 'react-native-paper';
 
+SplashScreen.setOptions({ duration: 1000, fade: true });
 SplashScreen.preventAutoHideAsync();
 
 const queryClient = new QueryClient({ defaultOptions: { queries: { retry: 2 }, mutations: { retry: 2 } } });
