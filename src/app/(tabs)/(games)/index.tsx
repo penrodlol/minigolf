@@ -1,8 +1,11 @@
+import * as courseAPI from '@/api/courses';
+import * as gameAPI from '@/api/games';
+import * as playerAPI from '@/api/players';
 import Avatar from '@/components/avatar';
 import * as Modal from '@/components/modal';
 import { Course, Game } from '@/db';
 import { useAppTheme } from '@/lib/theme';
-import { useCourseStore, useGamesStore, usePlayerStore } from '@/store';
+import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query';
 import dayjs from 'dayjs';
 import { useRouter } from 'expo-router';
 import { useState } from 'react';
@@ -12,20 +15,36 @@ import { Dropdown, MultiSelectDropdown } from 'react-native-paper-dropdown';
 
 export default function GamesPage() {
   const theme = useAppTheme();
+  const client = useQueryClient();
   const router = useRouter();
-  const gamesStore = useGamesStore();
-  const coursesStore = useCourseStore();
-  const playersStore = usePlayerStore();
+
   const [deleteGameId, setDeleteGameId] = useState<Game['id']>();
   const [addGameModalVisible, setAddGameModalVisible] = useState(false);
   const [newGameCourseId, setNewGameCourseId] = useState<Course['id']>();
   const [newGamePlayerIds, setNewGamePlayerIds] = useState<Array<string>>([]);
 
+  const topPlayers = useQuery({ queryKey: ['topPlayers'], queryFn: () => gameAPI.getTopPlayers() });
+  const games = useQuery({ queryKey: ['games'], queryFn: () => gameAPI.getGames() });
+  const courses = useQuery({ queryKey: ['courses'], queryFn: () => courseAPI.getCourses() });
+  const players = useQuery({ queryKey: ['players'], queryFn: () => playerAPI.getPlayers() });
+  const addGame = useMutation({
+    mutationKey: ['addGame'],
+    mutationFn: (props: gameAPI.GamesAPI_POST_SaveGame_Props) => gameAPI.saveGame(props),
+    onSuccess: () => client.invalidateQueries({ queryKey: ['games'] }),
+    onError: (error) => console.error(error),
+  });
+  const deleteGame = useMutation({
+    mutationKey: ['deleteGame'],
+    mutationFn: (id: gameAPI.GamesAPI_DELETE_DeleteGame_Props) => gameAPI.deleteGame(id),
+    onSuccess: () => client.invalidateQueries({ queryKey: ['games'] }),
+    onError: (error) => console.error(error),
+  });
+
   return (
     <View style={{ flex: 1 }}>
       <Surface elevation={2} style={{ padding: 30, borderBottomEndRadius: 20, borderBottomStartRadius: 20 }}>
         <View style={{ flexDirection: 'row', alignItems: 'flex-end', justifyContent: 'space-between' }}>
-          {[gamesStore.topPlayers.data?.[1], gamesStore.topPlayers.data?.[0], gamesStore.topPlayers.data?.[2]]
+          {[topPlayers.data?.[1], topPlayers.data?.[0], topPlayers.data?.[2]]
             .filter((player) => !!player)
             .map((player, index) => (
               <View key={player.id} style={{ flexDirection: 'column', alignItems: 'center', gap: 8 }}>
@@ -39,7 +58,7 @@ export default function GamesPage() {
         </View>
       </Surface>
       <FlatList
-        data={gamesStore.games.data}
+        data={games.data}
         keyExtractor={(game) => String(game.id)}
         contentContainerStyle={{ paddingTop: 40, paddingBottom: 56 }}
         renderItem={({ item: game, index }) => (
@@ -114,7 +133,7 @@ export default function GamesPage() {
           <Button onPress={() => setDeleteGameId(undefined)}>Cancel</Button>
           <Button
             mode="contained-tonal"
-            onPress={() => (gamesStore.deleteGame.mutateAsync(Number(deleteGameId)), setDeleteGameId(undefined))}
+            onPress={() => (deleteGame.mutateAsync(Number(deleteGameId)), setDeleteGameId(undefined))}
           >
             Delete
           </Button>
@@ -127,7 +146,7 @@ export default function GamesPage() {
             hideMenuHeader
             label="Course"
             placeholder="Select a course"
-            options={coursesStore.courses.data?.map(({ name, id }) => ({ label: name, value: String(id) })) ?? []}
+            options={courses.data?.map(({ name, id }) => ({ label: name, value: String(id) })) ?? []}
             value={String(newGameCourseId ?? '')}
             onSelect={(value) => setNewGameCourseId(value ? Number(value) : undefined)}
           />
@@ -135,7 +154,7 @@ export default function GamesPage() {
             hideMenuHeader
             label="Players"
             placeholder="Select players"
-            options={playersStore.players.data?.map(({ name, id }) => ({ label: name, value: String(id) })) ?? []}
+            options={players.data?.map(({ name, id }) => ({ label: name, value: String(id) })) ?? []}
             value={newGamePlayerIds}
             onSelect={setNewGamePlayerIds}
           />
@@ -148,7 +167,7 @@ export default function GamesPage() {
             onPress={async () => {
               if (!newGameCourseId || newGamePlayerIds.length <= 1) return;
               const playerIds = newGamePlayerIds.map((id) => Number(id));
-              await gamesStore.addGame.mutateAsync({ courseId: newGameCourseId, playerIds });
+              await addGame.mutateAsync({ courseId: newGameCourseId, playerIds });
               setAddGameModalVisible(false);
             }}
           >

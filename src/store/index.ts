@@ -18,8 +18,3 @@ declare module '@tanstack/react-query' {
     ];
   }
 }
-
-export * from './courses';
-export * from './game';
-export * from './games';
-export * from './players';

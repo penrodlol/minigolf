@@ -1,24 +1,40 @@
+import * as api from '@/api/players';
 import Avatar from '@/components/avatar';
 import * as Modal from '@/components/modal';
 import { Player } from '@/db';
 import { useAppTheme } from '@/lib/theme';
-import { usePlayerStore } from '@/store';
+import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query';
 import { useState } from 'react';
 import { FlatList, View } from 'react-native';
 import { Button, FAB, Icon, IconButton, Menu, Text, TextInput } from 'react-native-paper';
 
 export default function PlayersPage() {
   const theme = useAppTheme();
-  const store = usePlayerStore();
+  const client = useQueryClient();
+
   const [menuPlayerId, setMenuPlayerId] = useState<Player['id']>();
   const [deletePlayerId, setDeletePlayerId] = useState<Player['id']>();
   const [addEditPlayerModalVisible, setAddEditPlayerModalVisible] = useState(false);
   const [editPlayer, setEditPlayer] = useState<Partial<Player>>();
 
+  const players = useQuery({ queryKey: ['players'], queryFn: () => api.getPlayers() });
+  const savePlayer = useMutation({
+    mutationKey: ['savePlayer'],
+    mutationFn: (props: api.PlayersAPI_POST_SavePlayer_Props) => api.savePlayer(props),
+    onSuccess: () => client.invalidateQueries(),
+    onError: (error) => console.error(error),
+  });
+  const deletePlayer = useMutation({
+    mutationKey: ['deletePlayer'],
+    mutationFn: (props: api.PlayersAPI_DELETE_DeletePlayer_Props) => api.deletePlayer(props),
+    onSuccess: () => client.invalidateQueries({ queryKey: ['players'] }),
+    onError: (error) => console.error(error),
+  });
+
   return (
     <View style={{ flex: 1 }}>
       <FlatList
-        data={store.players.data}
+        data={players.data}
         keyExtractor={(player) => String(player.id)}
         renderItem={({ item: player, index }) => (
           <View
@@ -74,7 +90,7 @@ export default function PlayersPage() {
           <Button onPress={() => setDeletePlayerId(undefined)}>Cancel</Button>
           <Button
             mode="contained-tonal"
-            onPress={() => (store.deletePlayer.mutateAsync(Number(deletePlayerId)), setDeletePlayerId(undefined))}
+            onPress={() => (deletePlayer.mutateAsync(Number(deletePlayerId)), setDeletePlayerId(undefined))}
           >
             Delete
           </Button>
@@ -98,7 +114,7 @@ export default function PlayersPage() {
             disabled={!editPlayer?.name}
             onPress={async () => {
               if (!editPlayer?.name) return;
-              await store.savePlayer.mutateAsync({ name: editPlayer.name, id: editPlayer.id });
+              await savePlayer.mutateAsync({ name: editPlayer.name, id: editPlayer.id });
               setAddEditPlayerModalVisible(false);
             }}
           >

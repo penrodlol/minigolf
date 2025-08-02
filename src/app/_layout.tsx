@@ -13,6 +13,8 @@ import { adaptNavigationTheme, PaperProvider } from 'react-native-paper';
 
 SplashScreen.preventAutoHideAsync();
 
+const queryClient = new QueryClient({ defaultOptions: { queries: { retry: 2 }, mutations: { retry: 2 } } });
+
 export default function Layout() {
   const { success: dbSuccess, error: dbError } = useMigrations(db, migrations);
   const [fontLoaded, fontError] = useFonts({ MarkoOne_400Regular });
@@ -33,7 +35,7 @@ export default function Layout() {
   if (!dbSuccess || !fontLoaded) return null;
 
   return (
-    <QueryClientProvider client={new QueryClient()}>
+    <QueryClientProvider client={queryClient}>
       <ThemeProvider value={colorScheme === 'dark' ? DarkTheme : LightTheme}>
         <PaperProvider theme={colorScheme === 'dark' ? THEME.dark : THEME.light}>
           <Stack>

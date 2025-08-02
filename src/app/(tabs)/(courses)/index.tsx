@@ -1,7 +1,8 @@
+import * as api from '@/api/courses';
 import * as Modal from '@/components/modal';
 import { Course, CourseCompany } from '@/db';
 import { useAppTheme } from '@/lib/theme';
-import { useCourseStore } from '@/store';
+import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query';
 import { useState } from 'react';
 import { SectionList, View } from 'react-native';
 import { Button, Divider, FAB, Icon, IconButton, Menu, Portal, Text, TextInput } from 'react-native-paper';
@@ -9,23 +10,47 @@ import { Dropdown } from 'react-native-paper-dropdown';
 
 export default function CoursesPage() {
   const theme = useAppTheme();
-  const store = useCourseStore();
+  const client = useQueryClient();
 
   const [addCompanyOrCourseFabOpen, setAddCompanyOrCourseFabOpen] = useState(false);
-
   const [deleteCompanyId, setDeleteCompanyId] = useState<CourseCompany['id']>();
   const [addEditCompanyModalVisible, setAddEditCompanyModalVisible] = useState(false);
   const [editCompany, setEditCompany] = useState<Partial<CourseCompany>>();
-
   const [menuCourseId, setMenuCourseId] = useState<Course['id']>();
   const [deleteCourseId, setDeleteCourseId] = useState<Course['id']>();
   const [addEditCourseModalVisible, setAddEditCourseModalVisible] = useState(false);
   const [editCourse, setEditCourse] = useState<Partial<Course>>();
 
+  const courseCompanies = useQuery({ queryKey: ['courseCompanies'], queryFn: () => api.getCourseCompanies() });
+  const saveCompany = useMutation({
+    mutationKey: ['saveCompany'],
+    mutationFn: (props: api.CoursesAPI_POST_SaveCourseCompany_Props) => api.saveCourseCompany(props),
+    onSuccess: () => client.invalidateQueries(),
+    onError: (error) => console.error(error),
+  });
+  const deleteCompany = useMutation({
+    mutationKey: ['deleteCompany'],
+    mutationFn: (props: api.CoursesAPI_DELETE_DeleteCourseCompany_Props) => api.deleteCourseCompany(props),
+    onSuccess: () => client.invalidateQueries({ queryKey: ['courseCompanies'] }),
+    onError: (error) => console.error(error),
+  });
+  const saveCourse = useMutation({
+    mutationKey: ['saveCourse'],
+    mutationFn: (props: api.CoursesAPI_POST_SaveCourse_Props) => api.saveCourse(props),
+    onSuccess: () => client.invalidateQueries(),
+    onError: (error) => console.error(error),
+  });
+  const deleteCourse = useMutation({
+    mutationKey: ['deleteCourse'],
+    mutationFn: (props: api.CoursesAPI_DELETE_DeleteCourse_Props) => api.deleteCourse(props),
+    onSuccess: () => client.invalidateQueries({ queryKey: ['courseCompanies'] }),
+    onError: (error) => console.error(error),
+  });
+
   return (
     <View style={{ flex: 1 }}>
       <SectionList
-        sections={store.courseCompanies.data?.map((company) => ({ ...company, data: company.courses })) ?? []}
+        sections={courseCompanies.data?.map((company) => ({ ...company, data: company.courses })) ?? []}
         keyExtractor={(item) => String(item.id)}
         ItemSeparatorComponent={Divider}
         contentContainerStyle={{ paddingBottom: 56 }}
@@ -105,7 +130,7 @@ export default function CoursesPage() {
           <Button onPress={() => setDeleteCourseId(undefined)}>Cancel</Button>
           <Button
             mode="contained-tonal"
-            onPress={() => (store.deleteCourse.mutateAsync(Number(deleteCourseId)), setDeleteCourseId(undefined))}
+            onPress={() => (deleteCourse.mutateAsync(Number(deleteCourseId)), setDeleteCourseId(undefined))}
           >
             Delete
           </Button>
@@ -121,7 +146,7 @@ export default function CoursesPage() {
           <Button onPress={() => setDeleteCompanyId(undefined)}>Cancel</Button>
           <Button
             mode="contained-tonal"
-            onPress={() => (store.deleteCompany.mutateAsync(Number(deleteCompanyId)), setDeleteCompanyId(undefined))}
+            onPress={() => (deleteCompany.mutateAsync(Number(deleteCompanyId)), setDeleteCompanyId(undefined))}
           >
             Delete
           </Button>
@@ -144,7 +169,7 @@ export default function CoursesPage() {
             mode="contained-tonal"
             disabled={!editCompany?.name?.trim()}
             onPress={async () => (
-              await store.saveCompany.mutateAsync(editCompany as CourseCompany),
+              await saveCompany.mutateAsync(editCompany as CourseCompany),
               setAddEditCompanyModalVisible(false)
             )}
           >
@@ -180,7 +205,7 @@ export default function CoursesPage() {
             hideMenuHeader
             label="Company"
             placeholder="Select a company"
-            options={store.courseCompanies.data?.map(({ name, id }) => ({ label: name, value: String(id) })) ?? []}
+            options={courseCompanies.data?.map(({ name, id }) => ({ label: name, value: String(id) })) ?? []}
             value={String(editCourse?.courseCompanyId ?? '')}
             onSelect={(value) => setEditCourse({ ...editCourse, courseCompanyId: value ? Number(value) : undefined })}
           />
@@ -191,7 +216,7 @@ export default function CoursesPage() {
             mode="contained-tonal"
             disabled={!editCourse?.name?.trim()}
             onPress={async () => {
-              await store.saveCourse.mutateAsync(editCourse as Course);
+              await saveCourse.mutateAsync(editCourse as Course);
               setAddEditCourseModalVisible(false);
             }}
           >

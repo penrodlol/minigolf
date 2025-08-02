@@ -1,7 +1,7 @@
+import * as api from '@/api/game';
 import Avatar from '@/components/avatar';
-import { GameHolePlayer } from '@/db';
 import { useAppTheme } from '@/lib/theme';
-import { useGameStore } from '@/store';
+import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query';
 import dayjs from 'dayjs';
 import { useFocusEffect, useLocalSearchParams, useRouter } from 'expo-router';
 import { useCallback, useMemo, useState } from 'react';
@@ -11,21 +11,44 @@ import { Button, Divider, Icon, SegmentedButtons, Surface, Text, TextInput } fro
 export default function GamePage() {
   const params = useLocalSearchParams<{ id: string; hole: string }>();
   const theme = useAppTheme();
+  const client = useQueryClient();
   const router = useRouter();
-  const store = useGameStore(Number(params.id));
+
   const [leaderboardVisible, setLeaderboardVisible] = useState(false);
-  const [strokes, setStrokes] = useState<Record<GameHolePlayer['id'], GameHolePlayer['stroke']>>({});
+  const [strokes, setStrokes] = useState<api.GameAPI_POST_SaveGame_Props['strokes']>({});
 
   useFocusEffect(useCallback(() => setStrokes({}), []));
 
-  const lastHoleNumber = useMemo(() => store.game.data?.gameHoles.length ?? 0, [store.game.data]);
-  const allHolesComplete = useMemo(() => store.utils.getAllHolesComplete(store.game.data), [store.game.data]);
-  const hole = useMemo(() => store.utils.getHole(store.game.data, params.hole), [store.game.data, params.hole]);
-  const leaderboard = useMemo(() => store.utils.getLeaderBoard(store.game.data), [store.game.data]);
+  const id = useMemo(() => Number(params.id), []);
+  const game = useQuery({ queryKey: ['game', id], queryFn: () => api.getGame(id) });
+
+  const lastHoleNumber = useMemo(() => game.data?.gameHoles.length ?? 0, [game.data]);
+  const allHolesComplete = useMemo(() => api.util_allHolesComplete(game.data), [game.data]);
+  const hole = useMemo(() => api.util_getGameHole({ game: game.data, hole: params.hole }), [game.data, params.hole]);
+  const leaderboard = useMemo(() => api.util_getGameLeaderboard(game.data), [game.data]);
+
   const goToHole = useCallback(
     (hole: string) => (router.push({ pathname: '/[id]', params: { id: params.id, hole } }), setStrokes({})),
     [params.id, router],
   );
+
+  const saveGameHolePlayers = useMutation({
+    mutationKey: ['saveGameHolePlayers'],
+    mutationFn: async (props: api.GameAPI_POST_SaveGameHolePlayers_Props) => api.saveGameHolePlayers(props),
+    onSuccess: () => client.invalidateQueries({ queryKey: ['game', id] }),
+    onError: (error) => console.error(error),
+  });
+  const saveGame = useMutation({
+    mutationKey: ['saveGame'],
+    mutationFn: async (props: api.GameAPI_POST_SaveGame_Props) => api.saveGame(props),
+    onSuccess: () => (
+      client.invalidateQueries({ queryKey: ['game', id] }),
+      client.invalidateQueries({ queryKey: ['games'] }),
+      client.invalidateQueries({ queryKey: ['topPlayers'] }),
+      client.invalidateQueries({ queryKey: ['players'] })
+    ),
+    onError: (error) => console.error(error),
+  });
 
   return (
     <View style={{ flex: 1 }}>
@@ -52,21 +75,21 @@ export default function GamePage() {
       <View style={{ flexDirection: 'column', gap: 32, paddingHorizontal: 16, paddingVertical: 32 }}>
         <View style={{ flexDirection: 'column', justifyContent: 'center', gap: 8 }}>
           <View style={{ flexDirection: 'row', alignItems: 'center', justifyContent: 'center', gap: 4 }}>
-            <Text variant="headlineSmall">{store.game.data?.course?.courseCompany.name}</Text>
+            <Text variant="headlineSmall">{game.data?.course?.courseCompany.name}</Text>
             <Icon source="circle-small" size={24} color={theme.colors.onSurfaceVariant} />
-            <Text variant="headlineSmall">{store.game.data?.course?.name}</Text>
+            <Text variant="headlineSmall">{game.data?.course?.name}</Text>
           </View>
           <View style={{ flexDirection: 'row', alignItems: 'center', justifyContent: 'center', gap: 24 }}>
             <View style={{ flexDirection: 'row', alignItems: 'center', gap: 4 }}>
               <Icon source="calendar" size={18} color={theme.colors.onSurfaceVariant} />
               <Text style={{ color: theme.colors.onSurfaceVariant, ...theme.fonts.bodyMedium }}>
-                {dayjs(store.game.data?.playedOn).format('dddd, MMMM D, YYYY')}
+                {dayjs(game.data?.playedOn).format('dddd, MMMM D, YYYY')}
               </Text>
             </View>
             <View style={{ flexDirection: 'row', alignItems: 'center', gap: 4 }}>
               <Icon source="map-marker" size={18} color={theme.colors.onSurfaceVariant} />
               <Text style={{ color: theme.colors.onSurfaceVariant, ...theme.fonts.bodyMedium }}>
-                {store.game.data?.course?.location}
+                {game.data?.course?.location}
               </Text>
             </View>
           </View>
@@ -75,7 +98,7 @@ export default function GamePage() {
           <SegmentedButtons
             value={params.hole}
             onValueChange={(nextHole) => goToHole(nextHole)}
-            buttons={store.game.data?.gameHoles.map(({ hole }) => ({ value: String(hole), label: String(hole) })) ?? []}
+            buttons={game.data?.gameHoles.map(({ hole }) => ({ value: String(hole), label: String(hole) })) ?? []}
           />
         </ScrollView>
         <FlatList
@@ -114,13 +137,13 @@ export default function GamePage() {
                 (!allHolesComplete || Object.keys(strokes).length !== hole?.gameHolePlayer.length))
             }
             onPress={async () => {
-              if (!store.game.data) return;
+              if (!game.data) return;
 
-              await store.saveGameHolePlayers.mutateAsync(strokes);
+              await saveGameHolePlayers.mutateAsync(strokes);
               if (hole?.hole !== lastHoleNumber) return goToHole(String((hole?.hole ?? 1) + 1));
               const winner = Number(Object.keys(leaderboard ?? {})[0]);
-              await store.saveGame.mutateAsync({ id: store.game.data.id, strokes, winner });
-              router.push({ pathname: '/[id]/results', params: { id: store.game.data.id } });
+              await saveGame.mutateAsync({ id: game.data.id, strokes, winner });
+              router.push({ pathname: '/[id]/results', params: { id: game.data.id } });
             }}
           >
             {hole?.hole === lastHoleNumber ? 'Finish Game' : 'Next Hole'}
