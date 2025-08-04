@@ -8,6 +8,8 @@
     "userInterfaceStyle": "automatic",
     "newArchEnabled": true,
     "scheme": "minigolf",
+    "runtimeVersion": { "policy": "appVersion" },
+    "updates": { "url": "https://u.expo.dev/57545519-ceb9-45fa-9f45-baf99d3e5416" },
     "splash": { "image": "./src/assets/icon.png", "resizeMode": "contain", "backgroundColor": "#5f8787" },
     "ios": { "supportsTablet": true },
     "android": {
