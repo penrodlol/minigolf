@@ -15,7 +15,7 @@ export default function GamePage() {
   const router = useRouter();
 
   const [leaderboardVisible, setLeaderboardVisible] = useState(false);
-  const [strokes, setStrokes] = useState<api.GameAPI_POST_SaveGame_Props['strokes']>({});
+  const [strokes, setStrokes] = useState<api.GameAPI_POST_SaveGameHolePlayers_Props>({});
 
   useFocusEffect(useCallback(() => setStrokes({}), []));
 
@@ -141,8 +141,7 @@ export default function GamePage() {
 
               await saveGameHolePlayers.mutateAsync(strokes);
               if (hole?.hole !== lastHoleNumber) return goToHole(String((hole?.hole ?? 1) + 1));
-              const winner = Number(Object.keys(leaderboard ?? {})[0]);
-              await saveGame.mutateAsync({ id: game.data.id, strokes, winner });
+              await saveGame.mutateAsync(game.data.id);
               router.push({ pathname: '/[id]/results', params: { id: game.data.id } });
             }}
           >

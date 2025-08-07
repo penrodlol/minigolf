@@ -4,10 +4,7 @@ import { asc, eq, inArray, sql, SQL } from 'drizzle-orm';
 export type GameAPI_GET_Game_Props = Game['id'];
 export type GameAPI_GET_Game = Awaited<ReturnType<typeof getGame>>;
 export type GameAPI_POST_SaveGameHolePlayers_Props = Record<GameHolePlayer['id'], GameHolePlayer['stroke']>;
-export type GameAPI_POST_SaveGame_Props = Pick<Game, 'id'> & {
-  strokes: Record<GameHolePlayer['id'], GameHolePlayer['stroke']>;
-  winner: Player['id'];
-};
+export type GameAPI_POST_SaveGame_Props = Game['id'];
 export type GameAPI_Util_GetGamePlayers = ReturnType<typeof util_getGamePlayers>;
 export type GameAPI_Util_AllHolesComplete = ReturnType<typeof util_allHolesComplete>;
 export type GameAPI_Util_GetGameHoleProps = { game: GameAPI_GET_Game; hole: string };
@@ -42,11 +39,12 @@ export const saveGameHolePlayers = async (props: GameAPI_POST_SaveGameHolePlayer
 
 export const saveGame = async (props: GameAPI_POST_SaveGame_Props) =>
   db.transaction(async (tx) => {
-    await tx.update(game).set({ completed: true }).where(eq(game.id, props.id));
+    await tx.update(game).set({ completed: true }).where(eq(game.id, props));
+    const leaderboard = util_getGameLeaderboard(await getGame(props));
     await tx
       .update(player)
       .set({ wins: sql`${player.wins} + 1` })
-      .where(eq(player.id, props.winner));
+      .where(eq(player.id, leaderboard[0]?.id));
   });
 
 export const util_getGamePlayers = (props: GameAPI_GET_Game) =>
