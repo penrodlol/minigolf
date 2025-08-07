@@ -9,14 +9,11 @@ export default function TabsPage() {
 
   return (
     <Tabs
-      initialRouteName="(games)/index"
       screenOptions={{
         headerTitle: () => (
           <View style={{ width: '100%', flexDirection: 'row', alignItems: 'center', justifyContent: 'space-between' }}>
             <Image source={require('@/assets/icon.png')} alt="Logo" style={{ width: 36, height: 36 }} />
-            <Text style={{ ...theme.fonts.markoOneHeadlineSmall }} textBreakStrategy="simple">
-              Mini Golf
-            </Text>
+            <Text style={{ ...theme.fonts.markoOneHeadlineSmall }}>Mini Golf</Text>
             <IconButton icon="cog" size={24} />
           </View>
         ),
